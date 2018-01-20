@@ -1,0 +1,138 @@
+[Main]
+Title=Reboot and Shutdown shortcut
+Type=Plugin
+Author=ChrisR
+Description=(Win7PESE) Reboot and Shutdown shortcut
+Credits=http://TheOven.org
+Version=003
+Download_Level=1
+Level=3
+Selected=False
+Mandatory=False
+NoWarning=False
+Contact=http://TheOven.org
+Date=2017.02.18
+Depend=
+Disable=
+Web1=http://w7pese.cwcodes.net/Projects/Win7PESE/Tweaks/Reboot_Shutdown.script
+CertifiedBy=
+Certification=
+HistoryNotes01=
+History001=ChrisR 2010.09.10 Plugin created
+History002=Lancelot syntax updated - Date:2016.01.25
+History003=Lancelot - Add DUC Buttons - Date:2017.02.18
+
+[Interface]
+pBevel1=pBevel1,1,12,10,11,200,141
+pTextLabel1=Reboot,1,1,17,16,49,18,8,Bold
+pCheckBox1="Create Root Startmenu Shortcut",1,3,21,43,185,18,False
+pTextBox1="Name for Shortcuts:",1,0,31,86,168,21," Reboot"
+pCheckBox2="Create Desktop Shortcut",1,3,21,119,177,18,True
+pBevel2=pBevel2,1,12,214,22,186,129
+pTextLabel2=Shutdown,1,1,225,32,49,18,8,Bold
+pCheckBox3="Create Root Startmenu Shortcut",1,3,221,62,185,18,False
+pTextBox2="Name for Shortcuts:",1,0,220,99,168,21," Shutdown"
+pCheckBox4="Create Desktop Shortcut",1,3,219,124,177,18,True
+pBevel3=pBevel3,1,12,12,166,420,36
+pCheckBox5="enable Shutdown and Reboot in Favorites for Explorer shell Startmenu",1,3,21,175,400,17,False
+pTextLabel3="Warning: Using Reboot Shutdown shortcuts do NOT cache disk#$x (may cause data loss)",1,1,12,210,356,30,8,Bold
+WebLabel_Plugin="Plugin Page",1,10,338,4,55,18,http://TheOven.org/index.php?board=9
+Button_Download=,1,8,403,21,24,24,DownloadXXX,DoubleJDesignRavenna3dArrowDown0016016.bmp,False,False,_DownloadXXX_,False,"__DOWNLOAD Plugin"
+Button_Upload=,1,8,403,-1,24,24,UploadXXX,BokehliciaCaptivaSoftwareupload0016016.bmp,False,False,_UploadXXX_,False,"__UPLOAD Plugin (Admins Only)"
+Button_CompareEdit=,1,8,426,-1,24,24,CompareEditXXX,AmperossQetto2Move0016016.bmp,False,False,_CompareEditXXX_,False,"__DOWNLOAD and Compare with an Editor"
+
+[Variables]
+%ProfileDir%=%TargetDir%\Users\Default\AppData\Roaming
+%ProfileWin%=%ProfileDir%\Microsoft\Windows
+%ProfileDefault%=%TargetDir%\Users\Default
+%ProgramTitle%=Reboot and shudown
+%ProgramEXE%=
+%ProgramFolder%=
+
+[Process]
+//ReadENV
+Echo,"Processing %ScriptTitle% ..."
+RunFrom,Ram
+Call,DirDeleteMake,%ProjectTemp%\Shutdown_Reboot_LNK
+//  Reboot shortcut
+If,%pCheckBox1%,Equal,True,Begin
+ExtractFile,%ScriptFile%,Links,Reboot.7z,%ProjectTemp%\Shutdown_Reboot_LNK
+ShellExecute,Hide,%Tools%\7z.exe,"x #$q%ProjectTemp%\Shutdown_Reboot_LNK\Reboot.7z#$q -y -o#$q%ProfileWin%\Start Menu#$q"
+FileRename,"%ProfileWin%\Start Menu\ Reboot.lnk","%ProfileWin%\Start Menu\%pTextBox1%.lnk"
+End
+If,%pCheckBox2%,Equal,True,Begin
+ExtractFile,%ScriptFile%,Links,Reboot.7z,%ProjectTemp%\Shutdown_Reboot_LNK
+ShellExecute,Hide,%Tools%\7z.exe,"x #$q%ProjectTemp%\Shutdown_Reboot_LNK\Reboot.7z#$q -y -o#$q%ProfileWin%\Desktop#$q"
+FileRename,"%ProfileDefault%\Desktop\ Reboot.lnk",%ProfileDefault%\Desktop\%pTextBox1%.lnk
+End
+// Shutdown shortcut
+If,%pCheckBox3%,Equal,True,Begin
+ExtractFile,%ScriptFile%,Links,Shutdown.7z,%ProjectTemp%\Shutdown_Reboot_LNK
+ShellExecute,Hide,%Tools%\7z.exe,"x #$q%ProjectTemp%\Shutdown_Reboot_LNK\Shutdown.7z#$q -y -o#$q%ProfileWin%\Start Menu#$q"
+FileRename,"%ProfileWin%\Start Menu\ Shutdown.lnk","%ProfileWin%\Start Menu\%pTextBox2%.lnk"
+End
+If,%pCheckBox4%,Equal,True,Begin
+ExtractFile,%ScriptFile%,Links,Shutdown.7z,%ProjectTemp%\Shutdown_Reboot_LNK
+ShellExecute,Hide,%Tools%\7z.exe,"x #$q%ProjectTemp%\Shutdown_Reboot_LNK\Shutdown.7z#$q -y -o#$q%ProfileWin%\Desktop#$q"
+FileRename,"%ProfileDefault%\Desktop\ Shutdown.lnk",%ProfileDefault%\Desktop\%pTextBox2%.lnk
+End
+//  enable Shutdown and Reboot in Favorites new PE Startmenu
+RegHiveLoad,Tmp_Default,%RegDefault%
+RegWrite,HKLM,0x3,Tmp_Default\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage,Favorites,
+If,%pCheckBox5%,Equal,True,RegWrite,HKLM,0x3,Tmp_Default\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage,Favorites,00,2c,02,00,00,14,00,1f,44,47,1a,03,59,72,3f,a7,44,89,c5,55,95,fe,6b,30,ee,7a,00,74,00,1c,00,43,46,53,46,16,00,31,00,00,00,00,00,00,00,00,00,10,00,41,70,70,44,61,74,61,00,00,00,74,1a,59,5e,96,df,d3,48,8d,67,17,33,bc,ee,28,ba,c5,cd,fa,df,9f,67,56,41,89,47,c5,c7,6b,c0,b6,7f,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,41,00,70,00,70,00,44,00,61,00,74,00,61,00,00,00,42,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,52,6f,61,6d,69,6e,67,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,52,00,6f,00,61,00,6d,00,69,00,6e,00,67,00,00,00,16,00,54,00,31,00,00,00,00,00,00,00,00,00,10,00,4d,69,63,72,6f,73,6f,66,74,00,3c,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,4d,00,69,00,63,00,72,00,6f,00,73,00,6f,00,66,00,74,00,00,00,18,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,57,69,6e,64,6f,77,73,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,57,00,69,00,6e,00,64,00,6f,00,77,00,73,00,00,00,16,00,58,00,31,00,00,00,00,00,00,00,00,00,10,00,53,74,61,72,74,20,4d,65,6e,75,00,00,3e,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,53,00,74,00,61,00,72,00,74,00,20,00,4d,00,65,00,6e,00,75,00,00,00,1a,00,54,00,32,00,5b,05,00,00,43,38,03,93,20,00,20,45,78,69,74,2e,6c,6e,6b,00,3c,00,07,00,04,00,ef,be,43,38,97,94,43,38,97,94,26,00,00,00,f4,08,00,00,1f,fb,0f,fb,00,00,00,00,00,00,00,00,00,00,20,00,45,00,78,00,69,00,74,00,2e,00,6c,00,6e,00,6b,00,00,00,18,00,00,00,00,34,02,00,00,14,00,1f,44,47,1a,03,59,72,3f,a7,44,89,c5,55,95,fe,6b,30,ee,7a,00,74,00,1c,00,43,46,53,46,16,00,31,00,00,00,00,00,00,00,00,00,10,00,41,70,70,44,61,74,61,00,00,00,74,1a,59,5e,96,df,d3,48,8d,67,17,33,bc,ee,28,ba,c5,cd,fa,df,9f,67,56,41,89,47,c5,c7,6b,c0,b6,7f,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,41,00,70,00,70,00,44,00,61,00,74,00,61,00,00,00,42,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,52,6f,61,6d,69,6e,67,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,52,00,6f,00,61,00,6d,00,69,00,6e,00,67,00,00,00,16,00,54,00,31,00,00,00,00,00,00,00,00,00,10,00,4d,69,63,72,6f,73,6f,66,74,00,3c,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,4d,00,69,00,63,00,72,00,6f,00,73,00,6f,00,66,00,74,00,00,00,18,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,57,69,6e,64,6f,77,73,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,57,00,69,00,6e,00,64,00,6f,00,77,00,73,00,00,00,16,00,58,00,31,00,00,00,00,00,00,00,00,00,10,00,53,74,61,72,74,20,4d,65,6e,75,00,00,3e,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,53,00,74,00,61,00,72,00,74,00,20,00,4d,00,65,00,6e,00,75,00,00,00,1a,00,5c,00,32,00,a9,08,00,00,43,38,f9,94,20,00,52,45,42,4f,4f,54,7e,31,2e,4c,4e,4b,70,00,40,00,07,00,04,00,ef,be,42,38,33,77,43,38,f9,94,26,00,00,00,aa,05,00,00,1f,fb,0f,fb,00,00,00,00,00,00,00,00,00,00,20,00,52,00,65,00,62,00,6f,00,6f,00,74,00,2e,00,6c,00,6e,00,6b,00,00,00,1c,00,00,00,00,38,02,00,00,14,00,1f,44,47,1a,03,59,72,3f,a7,44,89,c5,55,95,fe,6b,30,ee,7a,00,74,00,1c,00,43,46,53,46,16,00,31,00,00,00,00,00,00,00,00,00,10,00,41,70,70,44,61,74,61,00,00,00,74,1a,59,5e,96,df,d3,48,8d,67,17,33,bc,ee,28,ba,c5,cd,fa,df,9f,67,56,41,89,47,c5,c7,6b,c0,b6,7f,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,41,00,70,00,70,00,44,00,61,00,74,00,61,00,00,00,42,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,52,6f,61,6d,69,6e,67,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,52,00,6f,00,61,00,6d,00,69,00,6e,00,67,00,00,00,16,00,54,00,31,00,00,00,00,00,00,00,00,00,10,00,4d,69,63,72,6f,73,6f,66,74,00,3c,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,4d,00,69,00,63,00,72,00,6f,00,73,00,6f,00,66,00,74,00,00,00,18,00,4e,00,31,00,00,00,00,00,00,00,00,00,10,00,57,69,6e,64,6f,77,73,00,38,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,57,00,69,00,6e,00,64,00,6f,00,77,00,73,00,00,00,16,00,58,00,31,00,00,00,00,00,00,00,00,00,10,00,53,74,61,72,74,20,4d,65,6e,75,00,00,3e,00,07,00,04,00,ef,be,00,00,00,00,00,00,00,00,26,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,53,00,74,00,61,00,72,00,74,00,20,00,4d,00,65,00,6e,00,75,00,00,00,1a,00,60,00,32,00,9f,05,00,00,43,38,02,95,20,00,53,48,55,54,44,4f,7e,31,2e,4c,4e,4b,70,00,44,00,07,00,04,00,ef,be,42,38,33,77,43,38,02,95,26,00,00,00,ab,05,00,00,1f,fb,0f,fb,00,00,00,00,00,00,00,00,00,00,20,00,53,00,68,00,75,00,74,00,64,00,6f,00,77,00,6e,00,2e,00,6c,00,6e,00,6b,00,00,00,1c,00,00,00,ff
+RegHiveUnLoad,Tmp_Default
+
+[EncodedFolders]
+Links
+
+[EncodedFile-Links-Reboot.7z]
+lines=0
+0=N3q8ryccAANGHCD/4AEAAAAAAABYAAAAAAAAABAom2oAJgAwACE/wPuybx6wMWzY21hb9vMR1W0Vdlv+yGWmTIbrvanizaCxO0sqvAkRQ8jVOmEP23AhoxbKqg4Tt0SLe9k7cCymelAGr566FlJOAOLLuZ7HvoOvFYGRfyO1PLNHUpaLYO9CYr2QIkcZY2JPs/u0Fkjgoef0QZO5QPsYsBAJCaFV3o/6dTQ4nb+9cb80C3ySLXCdzx3DbA90L6WxVFNX/xwgABvgrO5kRx56iiKyof42zsAWHDxarXdyISBvYluDex5W2f7W1cI3AX8cOIooqi877WjU1m1HlFmLt1twc/IrUIf4lbF0HBDvY9pJdxUzHnhek789TKVmZgpA5bC1n13KMIt1pXPxW40vuNkk+KXJ5aCIrPfmgXrdslbsKcNgHDfvpgkcp9yXoqqa+mHpsNrz4yMxILPC6NIAA7jS6ZFEyAvXs163Dt8kXZjNagOM0KcOhlv2Av8W98Xp1xWJknBtdyoPjqjADYTBBgFOvPrvB01fnDjZwedT8G2iSuQl4d/TQ17RQ9wejFo5SOK06ejBdGU1BplNBE5y3TlyqgY3yiJIXX7GmfS2BiL1QppEEUX0rTpoPkbcLE+zKeRcGn1rIE5GAqNJBb2YlfZOcsLwoLBaZWotAMNIGA4BBAYAAQmB4AAHCwEAASMDAQEFXQAAAQAMiOUACAoBehJOkgAABQERGQAgAFIAZQBiAG8AbwB0AC4AbABuAGsAAAAUCgEA3/+yJk0XyAEVBgEAIAAAAAAAeJzjDEpNys8v0TOvYhgFIxBEMOGXP37++QFGBgAyqQbsfWGg1AEAAAACAAAAIQAAAFgCAAAAAAAAAQAAAAAAAAAAAAAA
+
+[Links]
+Reboot.7z=669,892
+Shutdown.7z=636,848
+Computer.7z=798,1064
+
+[EncodedFile-Links-Shutdown.7z]
+lines=0
+0=N3q8ryccAAP433VjuQEAAAAAAABcAAAAAAAAAPHeS6sAJgAwACE/wPuybx6wMWz8EaO6TN9kCILO9OGv4j0fqeJTJqaoCKelm6DIblEtwoX0RSD4AaRhzQWh4w87xamSsW5HXOExw0U/wd7NXGZgd7GdJgqVCg1SvSoV3Cd+ijUx9+UK8kWAj+wMMw41t3+jIRTJsp/DcYCdKGG3Z8Pq6EknxjsFKr6BGrPjhJDtPP7HxYpd9/hBfNBa3zRv9sAYD1HYI0vkDx/FNK0q6Nh/ItN9oczqWEWR8iWbhd3I992EzpE7WQuzH8skp9lDxPAr1jGz8Y+ts0IbMzJtF513VBPOk+w0j2zdaXCI3Lh28Nid1Nymb0unLKz/BGTqCNjApzo5PCVW2gdiCZEXrkoyxvZscdECQDOzRBKMRl8j3aebikpD67SiWX3YnoJKeIzHLaRVYsLv17GD1Cul94LtF040JYYB1vyA7QdAEOy2ib5G76wGRN+fID2KeLl6ZMx7MT4UnwG9UqXaCls/3Z5xHt7mDxquTx+yuNEJAqcNmXw/9qYEcFaAtiR6j6Pcn/C8idw4qJGcBoReIy7iRd1xIJlktw6swyIZsRQbXcKWQkgW13gKvcEjtYwBBAYAAQmBuQAHCwEAASMDAQEFXQAAAQAMhdsACAoBqP7PWAAABQERHQAgAFMAaAB1AHQAZABvAHcAbgAuAGwAbgBrAAAAFAoBAL/YrjBNF8gBFQYBACAAAAAAAHic4w7OKC1JyS/P0zOvYhgFIw6YMuGXv2Js/ImRAQAqQQarLixHZwEAAAACAAAAIwAAADUCAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-Links-Computer.7z]
+lines=0
+0=N3q8ryccAAO7ZewEXQIAAAAAAABaAAAAAAAAALsXqEwAJgAwACE/wPuybx6wMW44MvlvBftAaENt4kHrt/Cf4gVPsJ/g+EGLB6vmY3bz/l6E4MYG61bznTBmSaxUjeBgNel4e5+iiEo/ok6UCbcY7PQY6NsxDzdukDdiyovPbgQ77lGKKZre55BzKtYPBvu/vBQ8i8ogB1FwtkrbQdroUglG/OJbRmVav1R1yKYkIHBeO0TXZfniK+fZZAFnmFYSyrNh7+/5p1npuEWZRKeKCYHaQ2pIH06YSrWUDI/nllb9tN0gsb+GXXN5FEJT4qOf+kJkxf6gGuPIuybPi/1xYPigs25wX8fUFZM46WLBKP0X36IFXcgi1XWaOP8tdMfuBI61hC81SdkQMdi7ux4WNEk5WNp48IELzHsmnI9Zy7Z4Dq985XNp42355jxV8rAK96EkT2SQ4RR/lZGaW7WggWjF4IiJI71y8FueBj10qez5IdcIla6GKgc5l7ohfEgvA3Nnaj9KPu2Qx35IwaMjMulsplzlm+mLFGG7c+/ibACw569jQbhgRqrNyWzOPxC54kr6rYJD7LKQBE2eARtr73kPKfg/Mmj/xALZ4pisgHzzfbUB/pIifdXzWmtFerpSzfav8SIQ5ryvDNnfc0c3/m7mVzefynWQysWMj1CkW6s++YgdHWgC0xTIx+twLrqRi6gxPRnasZWKxf3KX+uZNdYC01qtXI1kesKfScUR+hzGuYUx8HuLF6HHKgy+ro4kHSdSmdp0GHW/d1+bvaKzOnoiJ4gnvGkm8maVPD+gCTJjorZj5pNECNiQWxbgnrMhKToe5IrkIAcqRZF9OAEEBgABCYJdAAcLAQABIwMBAQVdAAABAAyElwAICgGWCqt2AAAFAREbAEMAbwBtAHAAdQB0AGUAcgAuAGwAbgBrAAAAFAoBACBzbhWo4MoBFQYBACAAAAAAAHic43bOzy0oLUkt0jOvYhgFIw5cZ8Iv/1ZA5QwjAwAlrQcB85ceaAEAAAACAAAAIwAAANcCAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-AuthorEncoded-Shutdown.jpg]
+lines=0
+0=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
+
+[AuthorEncoded]
+Shutdown.jpg=1751,2335
+Logo=Shutdown.jpg
+
+[DownloadXXX]
+Call,DownloadXQ
+
+[UploadXXX]
+Call,UploadXQ
+
+[InterfaceEncoded]
+DoubleJDesignRavenna3dArrowDown0016016.bmp=622,830
+BokehliciaCaptivaSoftwareupload0016016.bmp=676,902
+AmperossQetto2Move0016016.bmp=893,1191
+
+[EncodedFile-InterfaceEncoded-DoubleJDesignRavenna3dArrowDown0016016.bmp]
+lines=0
+0=eJzNk09Ik2Ecxw06BF2KqG5ih1EgYZZu7+v7vnu3d++2MpelRFHgQZEaJLVIXSxrW4Wauf7Nwha2rQ7dOgT9IQT1EkQHi+hSHfRSUZrMcp389PjSoUib3vrB9/I8fD78fr+Hxwi0LS+yyi6ySWSVyGqRZUUl1rnr1/3vBfy3+TTxkabuAzx4dp+lsu/G31LRXIrjaCmeVjtfpj4v2jH+YQwpWIYc3orctgUptJkT/UcWxc/1rLXYqYpKqGcklEglcns5DuF48uLhPx2TUxOYIRWlU8PZraOdU1GjMsop4RO9+DucfM1NzuvIfctR3Wai9hq4rvrREybOCy608xpqrAqlQzhObiOSbv2Ln8nPsDvsZ33dSoob1mE7XIIsetAvCUePG63TiRpXUE47rJ0MvRz8wzH9fZqR0SHSj1LUhn2s8a6gMi7hTm7HddmLftHA2aVT2mJjY3Mx7naJ/I/8vHN0Zc5avKNLw+gP4O7bgeuKD73XQyDqI5QM8ur96IJ7jKUiFi8nDDwDezBuCsf1amsnA4Opgm8Y7jtu8UrSj3lnL+btOjypXRg3dpIdThfkjyWCFu9M1eC7tx/vXeFIC8etWjKL4IPdTRZfFqtAvua1PJ5sPWamnuxIpiD/9Plj4ukIh3oaqGk3KG+0sWHfWhp7DvJm7PWS/9FcZmdnF+R+AlbU23p4nNNyyS9Nykn1ckktzkzPC0osS83LSzROcSwqyi93yS/PMzAwNAMivaTcAoZRMPxAGQuEZmPCLu9y8YwcAxMAHjMRfb+2diEBAAAAAgAAAEQAAAAGAgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-InterfaceEncoded-BokehliciaCaptivaSoftwareupload0016016.bmp]
+lines=0
+0=eJytU21LWmEYbrAfsP0De4H2pRcqRq+0RllUZkav1O+YIH2JPvUhKKJfUE3aaCNQQR3pYWDTPCpBMKUxSczjZDB0Q8UPV/d9L0tdg33YAxfn5nq5n+c85z4vDa8e18l6TnhGeEJ4SnhUpxP+xa1euQD8V5RKJeTzeeRyOWSzWQHXzLH2t1yxWEQikYDb7cXu7iHW1/exuron4Jo51tjD3tqsw3GC+fn36O39hJ6eh8Eae9hb2SMYjGB42Iu+Pv8/gb2cKb+v2fwGAwOBGvhpTzfhg9S1utn8FuW7MplOMDQUwMhIgHrfY3Mzio2Nz1Uce9jLGc5mMhni/WhuPoROt4/6+td3ODpKwGqNV3HsYS9nOBuLfUFLyzG6ulzEnVXB4/kOpzPzB89eznD24iKKxkar9NPrg7fwYG7OBp/vGxRFw+ysDaOjnjudvZzhbDR6iY4OO/V0YHJSxdiYiq2trygUSri+zuLq6ofU29tx0djT2WmTDGdTqbRw3d1O+jYfMTGhYno6TL1zKC+uTaawaDrdHtrajiWjaWn5BgsLfhgMIZoPL6amQlKvrJzT/gUkkwUsL58Lx2hoOJAnZ8rzbLF4YTSG6d18dAY3nfMUg4MK7RmULGu/oUqea4tFqZi/JGZmwnJGgyEg8zU+fip3otcrdJcRusMQ2tt5vl3iVdVU1T9gt6exuMi+exiNZ2htfYempgNBf78LS0sRsPehf1DTfoq2sxPH2tolnTEm4Jo51tLpX1XZG70Y6I54nNNyys9OzcjJTM5MdE4sKMksSwzOTyspTyxKLS3IyU9MMTAwNAMivaTcAoZRMPxAGQuEtmHCLs9kcFmVgQkAJ9URXc7wHxQBAAAAAgAAAEQAAAA8AgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[CompareEditXXX]
+Call,CompareEdit
+
+[EncodedFile-InterfaceEncoded-AmperossQetto2Move0016016.bmp]
+lines=0
+0=eJxtk1lIVFEYxw16agEVzTRncRtt0cx0NCu0QlsgyyCih7Cgh6KFNgQzSsqnFohUEm3FlqmsVGxxxoxSyYkpTcctsiKXtCZ1mPXee878++5o4YMf/DjfnXN+//sdmLt2s3amj7e0RAzhO8kMH7XPv/KfPcF0NXd7RXRg3ufCoDMD+nkFQ8Z5BYOTDBmDCgYNgXlfCudsq4yZzg3I7ToSfMHmVJQBilLi6pT1X097IZdsroBc87GpblB+zwHVNUBJ50JLBAQUSVhQIkJB/X+KBYQWCd4s1XUgKL/3kOz6HTYpQ4scbq9fLsL/ooAV50ahueKE8oYI1TWBoLVcgLKMKJWf6T1XHILv8WaVothyMlwHqG+KmHVJxKHbFnjs49j5zAnf2xyqexLC74hewm6JdE6AmjLDH1BGseVU2E17VeRjIIBmPFhhASQnnneK0Fy2IYaIKHEi9C6DXxmDWscQeY+yKkREPpLfaa+JuO/Wh5C/9bEd4C7INWyxw/bbCmnUiuZeK9bpHDhfY0FkuQvKSo6ohxKiqoCIu+76qEp3XUQtkFDL0DYm2x4863bjdAdwthfY0QKsMYjgYNDTAQVlqJ9yLHwBaB66DdFPhbol9TRLDUPsS4bWMQ+sYw6kVjuwhmbaXzuOvTVWVJtpPkqpbx/DYp0b0a+AmGrBsKhWMMS+AWL1dDcipZGhctiDHSYRbRY3OSIhYdwlYaI4cppdCGsAFr8Q6uNeiU/iacalrxkSyI1ropxGCXEtDGs/cmxq50hrlvCkx+G9W/F3DzQNDLITpxerEhrFE0ntwLK3DInvGLTvGZI/0BytHInka0wce9tpDo+E0gEPwuncUkJ2ljeJuUlGzNcamS3pA8iVkEJO6ieOVR2EmXpaN3Zz7PviQbyJPMrXfgSSjcy+2mQPlv+DaR3CrrSvQGon0caxmry0Lo508tJ7KIf6BLqHvLeyC0j/RpiFnKnfQEa3sDujj1syR4CMn0AmsZ76DSMTvfe3X8C6Pv4n0yzsme4bzO6yB2f1s6NZ/VyX9YPVZU+yhcjqlx5kD9FetyNkqvMXP3mcf3ick3XMLUgtyi8uDkwtKck38s0vSzUwMDQDIr2k3AKGUTDMgRkLhFZixi4vra37hIEJABkJC8Gkai7oAQAAAAIAAAA3AAAAIgMAAAAAAAABAAAAAAAAAAAAAAA
+

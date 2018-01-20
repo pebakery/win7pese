@@ -1,0 +1,589 @@
+[Main]
+Title=.Net Framework
+Type=Plugin
+Author=JFX, 2aCD
+Description=(Win7PESE) Add .Net Framework 2/3 support to PE
+Credits=http://TheOven.org
+Version=019
+Download_Level=1
+Level=3
+Selected=False
+Mandatory=False
+NoWarning=False
+Contact=http://TheOven.org
+Date=2017.01.28
+Depend=
+Disable=
+Web1=http://w7pese.cwcodes.net/Projects/Win7PESE/Components/DotNetFx.script
+CertifiedBy=
+Certification=
+History001=For HostOSx64 YOU MUST HAVE regedit.exe in %ProjectTemp%\HostOSTools folder to have SECURE regedit.exe process.
+History002=Dircopy ... GAC_MSIL fails -- filecopy *.* used -- failure happens with folowing files:
+History002a=_________Error: Copy file \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.UpdateDiagReport.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.UpdateDiagReport.resources.dll -> \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.UpdateDiagReport.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.UpdateDiagReport.resources.dll
+History002b=_________Error: Copy file \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.UpdateDiagRootcause.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.UpdateDiagRootcause.resources.dll -> \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.UpdateDiagRootcause.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.UpdateDiagRootcause.resources.dll
+History002c=_________Error: Copy file \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.WriteDiagProgress.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.WriteDiagProgress.resources.dll -> \GAC_MSIL\Microsoft.Windows.Diagnosis.Commands.WriteDiagProgress.Resources\1.0.0.0_en_31bf3856ad364e35\Microsoft.Windows.Diagnosis.Commands.WriteDiagProgress.resources.dll
+History003=2aCD correct x64 support with with WOW-Emulation-and native-mode
+History004=2aCD add Options 'Run from CD'
+History005=2aCD add Options for different file-copy
+History005=2aCD add Options for file-copy DotNet 2.0 minimal
+History006=2aCD error copy .Resources with English source
+History007=2aCD Fix SP1 SideBySide
+History007=2aCD Fix missing Files for Framework64
+History007=2aCD add Assemblys for Powershell with DotNet 2.0 only (Option)
+History008=2aCD Fix use correct Variables for programs-folder
+History009=2aCD Fix CopyProblem with long paths
+History011=2aCD Add Config-Files for more compatibility
+History012=Lancelot If,ExistRegKey added
+History013=2aCD Add RunDefault
+History014=2aCD Fix RunDefault
+History015=ChrisR cosmetics renamed Win7PESE folder
+History016=ChrisR - 2aCD Added FontCache3.0.0.0 service for DotNet3.0-wpf-programs to increase the performance. Code cleanup - cosmetics
+History017=Lancelot - Syntax updated - Date:2016.01.25
+History018=Lancelot - yet another stupid winbuilder bug workaround - RonaldJan reply 21... http://TheOven.org/index.php?topic=1704.msg19961#msg19961 - Date:2016.03.26
+History019=Lancelot Add DUC buttons - Date:2017.01.28
+
+[Variables]
+%ProgramEXE%=
+%ProgramFolder%=Microsoft.NET
+%RegeditexeFolder%=
+%AssemblyFolder%=%Target_Win%\assembly
+%AssemblyTarget%=%Target_Win%
+%DotNETFolder%=%Target_Win%\Microsoft.NET
+%FrameworkDir%=Framework
+%AssemblyTemp%=%ProjectTemp%\assembly
+%DotNetRunFrom%=RAM
+
+[Interface]
+Bevel_RunFromWhere=Bevel_RunFromWhere,1,12,4,10,547,82
+ScrollBox_RunFromWhere="Run default",1,4,11,17,140,21,"Run default","Run from RAM","Run from CD"
+TextLabel_Place="Place from Assemblies and ProgramFiles with the general project option (CdDrive-x:-y:)",1,1,11,44,160,46,8,Normal
+TextLabel_RunfromRAM="Run from RAM:",1,1,172,20,102,18,8,Normal
+TextLabel_RunfromRAM2="Folder Microsoft.NET and Assembly are placed on standard-location  inside the boot.wim (x:\windows)",1,1,259,20,288,26,8,Normal
+TextLabel_RunfromCD="Run from CD:",1,1,172,55,102,18,8,Normal
+TextLabel_RunfromCD2="Folder Microsoft.NET and Assembly are placed on CD-ROM (y:\programs)",1,1,254,55,288,26,8,Normal
+Bevel_CopyMode=Bevel_CopyMode,1,12,4,103,618,157
+CopyMode_TextLabel="File Copy:",1,1,13,106,53,18,8,Normal
+CopyMode_ScrollBox="DotNet 2.0 minimal",1,4,11,120,186,21,full,"full without Reference Assemblies","DotNet 2.0 only","DotNet 2.0 minimal"
+TextLabel_FullT=Full:,1,1,208,120,112,18,8,Normal
+TextLabel_Full="Filecopy for complete DotNet 1.0 ... 3.5 incl. Reference Assemblies on x:\program files",1,1,322,120,288,26,8,Normal
+TextLabel_FullwAT="Full without Reference Assemblies:",1,1,208,155,112,26,8,Normal
+TextLabel_FullwA="Filecopy for complete DotNet 1.0 ... 3.5 (300MB on CD)",1,1,322,155,288,18,8,Normal
+TextLabel_Net20T="DotNet 2.0 only:",1,1,208,190,112,18,8,Normal
+TextLabel_Net20="Filecopy for DotNet 2.0 only and the core-assemblies for the most programs enough (80MB on CD)",1,1,322,190,288,26,8,Normal
+TextLabel_Net20CoreT="DotNet 2.0 minimal:",1,1,208,225,112,18,8,Normal
+TextLabel_Net20Core="Filecopy for simple programs that use WindowsForms only (only 57MB on CD)",1,1,322,225,288,26,8,Normal
+TextLabel_ShortPath=Note:,1,1,4,270,100,18,8,Bold
+TextLabel_ShortPath1="It is very importand to define the %TargetDir% from project with short path (d:\Target\Win7PESE)#$xto avoid copy problems and a bad ISO-creation. DotNet-assemblies have very long paths.",1,1,4,282,486,26,8,Normal
+WebLabel_Plugin="Plugin Page",1,10,559,55,55,18,http://TheOven.org/index.php?board=9
+Button_Download=,1,8,584,21,24,24,DownloadXXX,DoubleJDesignRavenna3dArrowDown0016016.bmp,False,False,_DownloadXXX_,False,"__DOWNLOAD Plugin"
+Button_Upload=,1,8,584,-1,24,24,UploadXXX,BokehliciaCaptivaSoftwareupload0016016.bmp,False,False,_UploadXXX_,False,"__UPLOAD Plugin (Admins Only)"
+Button_CompareEdit=,1,8,605,-1,24,24,CompareEditXXX,AmperossQetto2Move0016016.bmp,False,False,_CompareEditXXX_,False,"__DOWNLOAD and Compare with an Editor"
+
+[Process]
+If,ExistFile,%ProjectTemp%\Components_PluginCache_Extract.ini,Echo,"Components PluginCache"
+If,Not,ExistFile,%ProjectTemp%\Components_PluginCache_Extract.ini,Run,%ScriptFile%,Process_Normal
+
+[Process_Normal]
+StrFormat,REPLACE,%ScrollBox_RunFromWhere%," ","",%runfrom%
+StrFormat,REPLACE,%CopyMode_ScrollBox%," ","",%CopyMode%
+//--
+If,ExistVar,%AtRam%,If,%runfrom%%AtRam%,Equal,RunDefaultFalse,Run,%ScriptFile%,SetRunfromCD
+If,Not,ExistVar,%AtRam%,If,%runfrom%,Equal,RunDefault,Run,%ScriptFile%,SetRunfromCD
+If,%runfrom%,Equal,RunfromCD,Run,%ScriptFile%,SetRunfromCD
+//--
+If,ExistDir,%AssemblyFolder%,DirDelete,%AssemblyFolder%
+//--
+//SP ermitteln
+IniRead,%projectdir%\script.project,IniVariables,OSServicePack,%t%
+If,Not,%t%,Equal,"",Set,%OSServicePack%,%t%
+//--
+If,ExistFile,%ProjectTemp%\HostOSTools\regedit.exe,Set,%RegeditexeFolder%,%ProjectTemp%\HostOSTools\
+If,Not,ExistFile,%ProjectTemp%\HostOSTools\regedit.exe,If,Not,%SysType%,Equal,x86,Echo,"regedit.exe MAY write wrong values",Warn
+//--
+If,%CopyMode%,Equal,full,Begin
+Set,%FXVer%,3.0
+Set,%FXVer1%,3
+Set,%FXVer2%,0
+Run,%ScriptFile%,CreateDirs,%AssemblyFolder%
+Run,%ScriptFile%,fullCopy
+End
+If,%CopyMode%,Equal,fullwithoutReferenceAssemblies,Begin
+Set,%FXVer%,3.0
+Set,%FXVer1%,3
+Set,%FXVer2%,0
+Run,%ScriptFile%,CreateDirs,%AssemblyFolder%
+Run,%ScriptFile%,fullCopyWithout
+End
+If,%CopyMode%,Equal,DotNet2.0only,Begin
+Set,%FXVer%,2.0
+Set,%FXVer1%,2
+Set,%FXVer2%,0
+Run,%ScriptFile%,CreateDirs,%AssemblyTemp%
+Run,%ScriptFile%,CopyNet2.0Only
+Run,%ScriptFile%,CopyAssemblyOnly
+If,%SourceArch%,Equal,x64,Run,%ScriptFile%,CopyNet2.0Only,64
+If,%SourceArch%,Equal,x64,Run,%ScriptFile%,CopyAssembly64Only
+DirMove,%AssemblyTemp%,%AssemblyTarget%
+End
+If,%CopyMode%,Equal,DotNet2.0minimal,Begin
+Set,%FXVer%,2.0
+Set,%FXVer1%,2
+Set,%FXVer2%,0
+Run,%ScriptFile%,CreateDirs,%AssemblyTemp%
+Run,%ScriptFile%,CopyNet2.0Core
+Run,%ScriptFile%,CopyAssemblyCore
+If,%SourceArch%,Equal,x64,Run,%ScriptFile%,CopyNet2.0Core,64
+If,%SourceArch%,Equal,x64,Run,%ScriptFile%,CopyAssembly64Core
+DirMove,%AssemblyTemp%,%AssemblyTarget%
+End
+//--
+Run,%ScriptFile%,CopySystem
+Run,%ScriptFile%,WriteSettings
+//--
+//Lancelot to get default view on explorer shell attrib ;)
+Shellexecute,Hide,attrib.exe,"+S #$q%AssemblyFolder%#$q"
+
+[SetRunfromCD]
+Set,%AssemblyFolder%,%Target_Prog%\assembly
+Set,%AssemblyTarget%,%Target_Prog%
+Set,%DotNETFolder%,%Target_Prog%\Microsoft.NET
+Set,%DotNetRunFrom%,CD
+
+[CreateDirs]
+If,Not,ExistDir,%DotNETFolder%\authman,DirMake,%DotNETFolder%\authman
+If,Not,ExistDir,%DotNETFolder%\Framework,DirMake,%DotNETFolder%\Framework
+If,Not,ExistDir,#1,DirMake,#1
+If,Not,ExistDir,#1\GAC,DirMake,#1\GAC
+If,Not,ExistDir,#1\GAC_32,DirMake,#1\GAC_32
+If,Not,ExistDir,#1\GAC_MSIL,DirMake,#1\GAC_MSIL
+If,Not,ExistDir,#1\temp,DirMake,#1\temp
+If,Not,ExistDir,#1\tmp,DirMake,#1\tmp
+If,%SourceArch%,Equal,x64,Begin
+If,Not,ExistDir,%DotNETFolder%\Framework64,DirMake,%DotNETFolder%\Framework64
+If,Not,ExistDir,#1\GAC_64,DirMake,#1\GAC_64
+End
+//--
+DirMake,%AssemblyTemp%
+
+[fullCopy]
+Run,%ScriptFile%,fullCopyWithout
+//--
+//If,%OS%,Equal,Win7,Beg-in
+If,Not,ExistDir,"%TargetDir%\Program Files\Reference Assemblies",DirMake,"%TargetDir%\Program Files\Reference Assemblies"
+FileCopy,"%InstallSRC%\Program Files\Reference Assemblies\*.*","%TargetDir%\Program Files\Reference Assemblies"
+If,%SourceArch%,Equal,x64,Begin
+If,Not,ExistDir,"%TargetDir%\Program Files (x86)\Reference Assemblies",DirMake,"%TargetDir%\Program Files (x86)\Reference Assemblies"
+FileCopy,"%InstallSRC%\Program Files (x86)\Reference Assemblies\*.*","%TargetDir%\Program Files (x86)\Reference Assemblies"
+End
+//En-d
+
+[fullCopyWithout]
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework\*.*,%DotNETFolder%\Framework
+FileCopy,%InstallSRC%\Windows\assembly\*,%AssemblyFolder%\,NoRec
+If,ExistDir,%InstallSRC%\Windows\assembly\GAC,FileCopy,%InstallSRC%\Windows\assembly\GAC\*.*,%AssemblyFolder%\GAC
+If,ExistDir,%InstallSRC%\Windows\assembly\GAC_32,FileCopy,%InstallSRC%\Windows\assembly\GAC_32\*.*,%AssemblyFolder%\GAC_32
+If,ExistDir,%InstallSRC%\Windows\assembly\GAC_MSIL,FileCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\*.*,%AssemblyFolder%\GAC_MSIL
+//--
+If,%SourceArch%,Equal,x64,Begin
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework64\*.*,%DotNETFolder%\Framework64
+FileCopy,%InstallSRC%\Windows\assembly\GAC_64\*.*,%AssemblyFolder%\GAC_64
+End
+
+[CopyNet2.0Core]
+StrFormat,LTrim,%DistLang%,3,%ShortLang%
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework\NETFX*.*,%DotNETFolder%\Framework\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\SharedReg12.dll,%DotNETFolder%\Framework#1\,NoRec
+//--
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727,DirMake,%DotNETFolder%\Framework#1\v2.0.50727
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\1031,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\1031
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\1033,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\1033
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\%ShortLang%,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\%ShortLang%
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\GAC,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\GAC
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\MUI,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\MUI
+If,Not,ExistDir,%DotNETFolder%\Framework#1\v2.0.50727\CONFIG,DirMake,%DotNETFolder%\Framework#1\v2.0.50727\CONFIG
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\1031,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\1031\*.*,%DotNETFolder%\Framework#1\v2.0.50727\1031
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\1033,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\1033\*.*,%DotNETFolder%\Framework#1\v2.0.50727\1033
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\%ShortLang%,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\%ShortLang%\*.*,%DotNETFolder%\Framework#1\v2.0.50727\%ShortLang%
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\GAC,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\GAC\*.*,%DotNETFolder%\Framework#1\v2.0.50727\GAC
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\MUI,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\MUI\*.*,%DotNETFolder%\Framework#1\v2.0.50727\MUI
+If,ExistDir,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CONFIG,FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CONFIG\*.*,%DotNETFolder%\Framework#1\v2.0.50727\CONFIG
+//--
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Accessibility.dll,%DotNETFolder%\Framework#1\v2.0.50727
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\AdoNetDiag.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\alink.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\csc*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\cvtres.exe,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Culture.dll,%DotNETFolder%\Framework#1\v2.0.50727
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\dfsvc.exe,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\fusion.dll,%DotNETFolder%\Framework#1\v2.0.50727
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\ie*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\IIEHost.dll,%DotNETFolder%\Framework#1\v2.0.50727
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft_VsaVb.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscor*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\sbscmp20_mscorlib.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\shfus*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\sysglobl.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.config*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Deployment.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Drawing.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Management.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Security.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.tlb,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Windows.Forms.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Runtime.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.XML.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\TLBREF.DLL,%DotNETFolder%\Framework#1\v2.0.50727
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\vbc.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+//FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\vsavb7*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+
+[CopyNet2.0Only]
+Run,%ScriptFile%,CopyNet2.0Core,#1
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\AppLaunch.exe,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CLR.mof,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CasPol.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CORPerfMonExt.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\ISymWrapper.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\ilasm.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\InstallUtil*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\jsc.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\dfdll.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\diasymreader.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\dw20.exe,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\EventLogMessages.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\CustomMarshalers.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\*.nlp,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\ngen.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\MmcAspExt.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\normalization.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\PerfCounter.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\peverify.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.Common.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.CSharp.targets,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.JScript.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.VisualBasic.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.Vsa.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\Microsoft.WinFX.targets,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Data.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Design.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.EnterpriseServices*.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Messaging.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.Transactions.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\System.ServiceProcess.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\RegAsm.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\RegSvcs.*,%DotNETFolder%\Framework#1\v2.0.50727\,NoRec
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\SOS.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\webengine.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\WMINet_Utils.dll,%DotNETFolder%\Framework#1\v2.0.50727
+FileCopy,%InstallSRC%\Windows\Microsoft.NET\Framework#1\v2.0.50727\XPThemes.manifest,%DotNETFolder%\Framework#1\v2.0.50727
+
+[CopyAssemblyCore]
+FileCopy,%InstallSRC%\Windows\assembly\*,%AssemblyTemp%\,NoRec
+//If,ExistDir,%InstallSRC%\Windows\assembly\GAC,DirCopy,%InstallSRC%\Windows\assembly\GAC,%AssemblyTemp%
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Accessibility,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System,%AssemblyTemp%\GAC_MSIL
+//DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.AddIn.Contract,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Configuration*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Design*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Drawing*.*,%AssemblyTemp%\GAC_MSIL
+//DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Management*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Security*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Runtime*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Windows.Forms*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.XML,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\System.XML.Resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.XML.Resources,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\System.Resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Resources,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\mscorlib.resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\mscorlib.resources,%AssemblyTemp%\GAC_MSIL
+//--
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\mscorlib,%AssemblyTemp%\GAC_32
+
+[CopyAssemblyOnly]
+Run,%ScriptFile%,CopyAssemblyCore
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\sysglobl*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Data.SqlXML*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Messaging*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Service.Process*.*,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\System.Transactions.resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Transactions.resources,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\System.EnterpriseServices.resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.EnterpriseServices.resources,%AssemblyTemp%\GAC_MSIL
+If,ExistDir,%InstallSRC%\Windows\Assembly\GAC_MSIL\System.Data.resources,DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Data.resources,%AssemblyTemp%\GAC_MSIL
+// for PowerShell
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.PowerShell*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.BackgroundIntelligent*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.JScript*.*,%AssemblyTemp%\GAC_MSIL
+//long path problem
+//DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.Security.ApplicationId*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.Security.ApplicationId.PolicyManagement*.*,%AssemblyTemp%\GAC_MSIL
+//--
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.Windows.Diagnosis*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\Microsoft.WSMan*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.DirectoryServices*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.Management*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_MSIL\System.ServiceProcess*.*,%AssemblyTemp%\GAC_MSIL
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\Microsoft.Security.ApplicationId.PolicyManagement.PolicyEngineApi.Interop,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\Microsoft.Windows.Diagnosis.SDEngine,%AssemblyTemp%\GAC_32
+//--
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\System.Data,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\System.EnterpriseServices,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\System.Transactions,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\ISymWrapper,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\CustomMarshalers,%AssemblyTemp%\GAC_32
+DirCopy,%InstallSRC%\Windows\assembly\GAC_32\Microsoft.Interop.Security.AzRoles,%AssemblyTemp%\GAC_32
+
+[CopyAssembly64Core]
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\mscorlib,%AssemblyTemp%\GAC_64
+
+[CopyAssembly64Only]
+Run,%ScriptFile%,CopyAssembly64Core
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\CustomMarshalers,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\ISymWrapper,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\System.Data,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\System.EnterpriseServices,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\Microsoft.Interop.Security.AzRoles,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\System.Transactions,%AssemblyTemp%\GAC_64
+// for PowerShell
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\Microsoft.Windows.Diagnosis.SDEngine,%AssemblyTemp%\GAC_64
+DirCopy,%InstallSRC%\Windows\assembly\GAC_64\Microsoft.Security.ApplicationId.PolicyManagement.PolicyEngineApi.Interop,%AssemblyTemp%\GAC_64
+
+[CopySystem]
+DirCopy,%InstallSRC%\Windows\system32\MUI\*.*,%TargetDir%\Windows\system32\MUI\
+//--
+If,Not,ExistFile,%TargetDir%\Windows\system32\mscoree.dll,FileCopy,%InstallSRC%\Windows\system32\mscoree.dll,%TargetDir%\Windows\system32
+If,Not,ExistFile,%TargetDir%\Windows\system32\mscorier.dll,FileCopy,%InstallSRC%\Windows\system32\mscorier.dll,%TargetDir%\Windows\system32
+If,Not,ExistFile,%TargetDir%\Windows\system32\mscories.dll,FileCopy,%InstallSRC%\Windows\system32\mscories.dll,%TargetDir%\Windows\system32
+If,Not,ExistFile,%TargetDir%\Windows\system32\WindowsCodecs.dll,FileCopy,%InstallSRC%\Windows\system32\WindowsCodecs.dll,%TargetDir%\Windows\system32
+If,Not,ExistFile,%TargetDir%\Windows\system32\WindowsCodecsExt.dll,FileCopy,%InstallSRC%\Windows\system32\WindowsCodecsExt.dll,%TargetDir%\Windows\system32
+//--
+If,%SourceArch%,Equal,x64,Begin
+DirCopy,%InstallSRC%\Windows\syswow64\MUI\*.*,%TargetDir%\Windows\syswow64\MUI\
+//--
+If,Not,ExistFile,%TargetDir%\Windows\syswow64\mscoree.dll,FileCopy,%InstallSRC%\Windows\syswow64\mscoree.dll,%TargetDir%\Windows\syswow64
+If,Not,ExistFile,%TargetDir%\Windows\syswow64\mscorier.dll,FileCopy,%InstallSRC%\Windows\syswow64\mscorier.dll,%TargetDir%\Windows\syswow64
+If,Not,ExistFile,%TargetDir%\Windows\syswow64\mscories.dll,FileCopy,%InstallSRC%\Windows\syswow64\mscories.dll,%TargetDir%\Windows\syswow64
+If,Not,ExistFile,%TargetDir%\Windows\syswow64\WindowsCodecs.dll,FileCopy,%InstallSRC%\Windows\syswow64\WindowsCodecs.dll,%TargetDir%\Windows\syswow64
+If,Not,ExistFile,%TargetDir%\Windows\syswow64\WindowsCodecsExt.dll,FileCopy,%InstallSRC%\Windows\syswow64\WindowsCodecsExt.dll,%TargetDir%\Windows\syswow64
+End
+DirCopy,%InstallSRC%\Windows\winsxs\*_microsoft.vc80.crt*,%TargetDir%\Windows\winsxs\
+If,%OS%,Equal,Win7,DirCopy,%InstallSRC%\Windows\winsxs\*_microsoft.vc90.crt*,%TargetDir%\Windows\winsxs\
+FileCopy,%InstallSRC%\Windows\winsxs\manifests\*_microsoft.vc80.crt*,%TargetDir%\Windows\winsxs\manifests
+FileCopy,%InstallSRC%\Windows\winsxs\manifests\*_policy.8.0.microsoft.vc80*,%TargetDir%\Windows\winsxs\manifests
+If,%OS%,Equal,Win7,FileCopy,%InstallSRC%\Windows\winsxs\manifests\*_microsoft.vc90.crt*,%TargetDir%\Windows\winsxs\manifests
+If,%OS%,Equal,Win7,FileCopy,%InstallSRC%\Windows\winsxs\manifests\*_policy.9.0.microsoft.vc90*,%TargetDir%\Windows\winsxs\manifests
+Retrieve,FileVersion,%InstallSRC%\Windows\system32\hal.dll,%ver%
+
+[WriteSettings]
+Echo,"Write Settings..."
+//--
+If,Not,ExistDir,%ProjectTemp%\DotNetFx,DirMake,%ProjectTemp%\DotNetFx
+ExtractAllFiles,%ScriptFile%,SxS,%ProjectTemp%\DotNetFx
+ExtractFile,%ScriptFile%,NetFX,netfx.7z,%ProjectTemp%\DotNetFx
+ShellExecute,Hide,%Tools%\7z.exe,"x #$q%ProjectTemp%\DotNetFx\netfx.7z#$q -y -o#$q%ProjectTemp%\DotNetFx#$q"
+//--
+RegHiveLoad,Tmp_Software,%RegSoftware%
+RegHiveLoad,Tmp_System,%RegSystem%
+RegHiveLoad,Tmp_components,%TargetDir%\Windows\system32\config\components
+//--
+Echo,"Fixing Side by Side..."
+If,%OS%%OSServicePack%,Equal,Win7SP0,Run,%ScriptFile%,SxS_7SP0
+If,%OS%%OSServicePack%,Equal,Win7SP1,Run,%ScriptFile%,SxS_7SP1
+If,%OS%,Equal,WinVista,Run,%ScriptFile%,SxS_Vista
+//--
+If,%SourceArch%,Equal,x86,Begin
+If,%DotNetRunFrom%,Equal,CD,Run,%ScriptFile%,WriteSettingsCD
+If,%DotNetRunFrom%,Equal,CD,Run,%ScriptFile%,WriteSettingsCDx86
+RegAddBoot,HKLM,0x1,"Software\Microsoft\NET Framework Setup\NDP\v3.0\Setup\Windows Presentation Foundation",WPFNonReferenceAssembliesPathx86,%PE_Programs%\%ProgramFolder%\Framework\v3.0\WPF\
+End
+If,%SourceArch%,Equal,x64,Begin
+If,%DotNetRunFrom%,Equal,CD,Begin
+Run,%ScriptFile%,WriteSettingsCD,64
+Run,%ScriptFile%,WriteSettingsCD,,Wow6432Node\
+Run,%ScriptFile%,WriteSettingsCDx64,,Wow6432Node\
+Run,%ScriptFile%,WriteSettingsCDx86,,Wow6432Node\
+RegAddBoot,HKLM,0x1,"Software\Microsoft\NET Framework Setup\NDP\v3.0\Setup\Windows Presentation Foundation",WPFNonReferenceAssembliesPathx64,%PE_Programs%\%ProgramFolder%\Framework64\v3.0\WPF\
+RegAddBoot,HKLM,0x1,"Software\Wow6432Node\Microsoft\NET Framework Setup\NDP\v3.0\Setup\Windows Presentation Foundation",WPFNonReferenceAssembliesPathx86,%PE_Programs%\%ProgramFolder%\Framework\v3.0\WPF\
+End
+RegAddBoot,HKLM,0x1,Software\Classes\TypeLib\{215D64D2-031C-33C7-96E3-61794CD1EE61}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\System.Windows.Forms.tlb
+RegAddBoot,HKLM,0x1,Software\Wow6432Node\Classes\TypeLib\{215D64D2-031C-33C7-96E3-61794CD1EE61}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\System.Windows.Forms.tlb
+End
+//--
+RegHiveunLoad,Tmp_Software
+RegHiveUnLoad,Tmp_System
+RegHiveunLoad,Tmp_components
+//--
+DirDelete,%ProjectTemp%\DotNetFx
+
+[SxS_7SP0]
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\win7_SxS_%SourceArch%.reg#$q"
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\win7_DotNetFx_%SourceArch%.reg#$q"
+If,%FXVer1%,Bigger,2,ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\FontCache3.0.0.0_%SourceArch%.reg#$q"
+
+[SxS_7SP1]
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\win7SP1_SxS_%SourceArch%.reg#$q"
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\win7_DotNetFx_%SourceArch%.reg#$q"
+If,%FXVer1%,Bigger,2,ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\FontCache3.0.0.0_%SourceArch%.reg#$q"
+
+[SxS_Vista]
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\vista_SxS_%SourceArch%.reg#$q"
+ShellExecute,hide,%RegeditexeFolder%regedit.exe," /s #$q%ProjectTemp%\DotNetFx\vista_DotNetFx_%SourceArch%.reg#$q"
+
+[WriteSettingsCD]
+//GAC Location - for RunfromCD
+RegAddBoot,HKLM,0x1,Software\#2Microsoft\Fusion,CacheLocation,%PE_Programs%\
+//.NET Location - for RunfromCD
+RegAddBoot,HKLM,0x1,"Software\#2Microsoft\.NETFramework","InstallRoot","%PE_Programs%\%ProgramFolder%\Framework#1\"
+RegAddBoot,HKLM,0x1,"Software\#2Microsoft\.NETFramework\Windows Presentation Foundation\Hosting\Hosts",v3.0,%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\WPF\PresentationHostDLL.dll
+RegAddBoot,HKLM,0x2,"Software\#2Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{186e0934-aee9-11da-961b-0014223d2a70}",AppPath,%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{14D4CBD9-7490-4F25-BAA6-1C5E22F6B1E3}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\WPF\PenIMC.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{54A05253-96FA-4B98-B8FD-9534D7255914}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\WPF\PenIMC.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{967696C6-354C-4B5C-9CC8-BD9E1C480C77}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\WPF\PenIMC.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{FEDB2179-2335-48F1-AA28-5CDA35A2B36D}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727\MmcAspExt.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{215D64D2-031C-33C7-96E3-61794CD1EE61}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\System.Windows.Forms.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{4FB2D46F-EFC8-4643-BCD0-6E5BFA6A174C}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\System.EnterpriseServices.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{5477469E-83B1-11D2-8B49-00A0C9B7C9C4}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\mscoree.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{BED7F4EA-1A96-11D2-8F08-00A0C9A6186D}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\mscorlib.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{BEE4BFEC-6683-3E67-9167-3C0CBC68F40A}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\System.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{C4F9D6EB-4FBB-3341-A582-AEA37ED6DA94}\8.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\Microsoft.Vsa.Vb.CodeDOMProcessor.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D3295D86-D604-11D4-A704-00C04FA137E4}\8.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\Microsoft.Vsa.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D3295D87-D604-11D4-A704-00C04FA137E4}\8.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\Microsoft.JScript.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D37E2A3E-8545-3A39-9F4F-31827C9124AB}\2.0\0\win32,,%PE_Programs%\%ProgramFolder%\Framework\v2.0.50727\System.Drawing.tlb
+//--
+RegAddBoot,HKLM,0x1,Software\#2Microsoft\ASP.NET\2.0.50727.0,Path,%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727
+RegAddBoot,HKLM,0x1,Software\#2Microsoft\ASP.NET\2.0.50727.0,DllFullPath,%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727\aspnet_isapi.dll
+RegAddBoot,HKLM,0x1,Software\#2Microsoft\MSBuild\ToolsVersions\2.0,MSBuildToolsPath,%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727
+RegAddBoot,HKLM,0x1,Software\#2Microsoft\MSBuild\ToolsVersions\3.5,MSBuildToolsPath,%PE_Programs%\%ProgramFolder%\Framework#1\v3.5
+RegAddBoot,HKLM,0x1,"Software\#2Microsoft\NET Framework Setup\NDP\v3.0\Setup\Windows Communication Foundation",RuntimeInstallPath,"%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\Windows Communication Foundation\"
+RegAddBoot,HKLM,0x1,"Software\#2Microsoft\NET Framework Setup\NDP\v3.0\Setup\Windows Presentation Foundation",InstallRoot,%PE_Programs%\%ProgramFolder%\Framework#1\v3.0\WPF\
+RegAddBoot,HKLM,0x1,"Software\#2Microsoft\NET Framework Setup\NDP\v3.5",InstallPath,%PE_Programs%\%ProgramFolder%\Framework#1\v3.5
+//--
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\system.enterpriseservices.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\system.configuration.install.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\wminet_utils.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\microsoft.vsa.vb.codedomprocessor.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscordbi.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscorrc.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\diasymreader.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\vsavb7rt.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\microsoft.jscript.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscorsec.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\iehost.dll,0x1000
+RegAddBoot,HKLM,0x4,Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\system.data.dll,0x1000
+//--
+RegAddBoot,HKLM,0x4,"Software\#2Microsoft\Windows NT\CurrentVersion\KnownFunctionTableDlls",%PE_Programs%\%ProgramFolder%\Framewor#1\v2.0.50727\mscordacwks.dll,0x0
+RegAddBoot,HKLM,0x4,"Software\#2Microsoft\Windows NT\CurrentVersion\KnownManagedDebuggingDlls",%PE_Programs%\%ProgramFolder%\Framework#1\v2.0.50727\mscordacwks.dll,0x0
+//--
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.enterpriseservices.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.enterpriseservices.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.configuration.install.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.configuration.install.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\wminet_utils.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\wminet_utils.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\microsoft.vsa.vb.codedomprocessor.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\microsoft.vsa.vb.codedomprocessor.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscordbi.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscordbi.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscorrc.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscorrc.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\diasymreader.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\diasymreader.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\vsavb7rt.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\vsavb7rt.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\microsoft.jscript.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\microsoft.jscript.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscorsec.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\mscorsec.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\iehost.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\iehost.dll
+If,ExistRegKey,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.data.dll,RegDelete,HKLM,Tmp_Software\#2Microsoft\Windows\CurrentVersion\SharedDLLs,X:\Windows\Microsoft.NET\Framework\v1.0.3705\system.data.dll
+If,ExistRegKey,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\KnownFunctionTableDlls",X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscordacwks.dll,RegDelete,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\KnownFunctionTableDlls","X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscordacwks.dll"
+If,ExistRegKey,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\KnownManagedDebuggingDlls",X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscordacwks.dll,RegDelete,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\KnownManagedDebuggingDlls","X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscordacwks.dll"
+If,ExistRegKey,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\MiniDumpAuxiliaryDlls",X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscorwks.dll,RegDelete,HKLM,"Tmp_Software\#2Microsoft\Windows NT\CurrentVersion\MiniDumpAuxiliaryDlls","X:\Windows\Microsoft.NET\Framework#1\v2.0.50727\mscorwks.dll"
+
+[WriteSettingsCDx64]
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{4FB2D46F-EFC8-4643-BCD0-6E5BFA6A174C}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\System.EnterpriseServices.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{5477469E-83B1-11D2-8B49-00A0C9B7C9C4}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\mscoree.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{BED7F4EA-1A96-11D2-8F08-00A0C9A6186D}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\mscorlib.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{BEE4BFEC-6683-3E67-9167-3C0CBC68F40A}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\System.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D3295D86-D604-11D4-A704-00C04FA137E4}\8.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\Microsoft.Vsa.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D3295D87-D604-11D4-A704-00C04FA137E4}\8.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\Microsoft.JScript.tlb
+RegAddBoot,HKLM,0x1,Software\#2Classes\TypeLib\{D37E2A3E-8545-3A39-9F4F-31827C9124AB}\2.0\0\win64,,%PE_Programs%\%ProgramFolder%\Framework64\v2.0.50727\System.Drawing.tlb
+If,%FXVer1%,Bigger,2,RegAddBoot,HKLM,0x2,SYSTEM\CurrentControlSet\services\FontCache3.0.0.0,ImagePath,%PE_Programs%\%ProgramFolder%\Framework64\v3.0\WPF\PresentationFontCache.exe
+
+[WriteSettingsCDx86]
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{18BA7139-D98B-43C2-94DA-2604E34E175D}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{1AC66142-B805-3C20-A589-49CC6B80E8FB}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{3024B989-5633-39E8-B5F4-93A5D510CF99}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{47FDDA97-D41E-3646-B2DD-5ECF34F76842}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{48AA163A-93C3-30DF-B209-99CE04D4FF2D}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{67283557-1256-3349-A135-055B16327CED}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{6A0162ED-4609-3A31-B89F-D590CCF75833}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{9F6932F1-4A16-49D0-9CCA-0DCC977C41AA}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+RegAddBoot,HKLM,0x1,Software\#2Classes\CLSID\{E07A1EB4-B9EA-3D7D-AC50-2BA0548188AC}\InprocServer32,,%PE_Programs%\%ProgramFolder%\Framework\v1.0.3705\mscormmc.dll
+If,%FXVer1%,Bigger,2,RegAddBoot,HKLM,0x2,SYSTEM\CurrentControlSet\services\FontCache3.0.0.0,ImagePath,%PE_Programs%\%ProgramFolder%\Framework\v3.0\WPF\PresentationFontCache.exe
+
+[AuthorEncoded]
+dotnet.jpg=1380,1840
+Logo=dotnet.jpg
+
+[EncodedFile-AuthorEncoded-dotnet.jpg]
+lines=0
+0=eJz7f+P/AwYBLzdPNwZGRkaGFCBk+H+bwZmBjYWVjZWFjY2VjZ2djYNLgIuLk5NLhI+fR0BcREJCXERMTEpWVV5KWllGTExBR0FZTV1TS1NSXtdAV8NAVUNTA2QIIzs7OxcHlzAXl7CGlJiUBsng/yEGQQ4GR4YwZkYlBiZBRmZBxv9HGKQZGBmYmIGuRQBWNmYWdiaQpDgjCDAgAyZG5v+3GHiYgboEmAUYGBhfNYCEuVzWNnWdXBNn3pvJ9a7lvuvv4G0hDcxzTnrmuWR5H3YKv2Ytc08ya+/iJQ0wg0DmKwkwMAEBAzvceGYWRlYmEQYFQSFhMVOHAKBVHEAHAMV+CyW9ynkueVr12cfkSU4iHc+nrBcWlrVRnlisKlradnF+MWtx6vdg6XVbXF5+Lo5eK2Dz6sBf689P6gtlwnwZp6aIhNpLX9op7pzutjE06GzZsiOnI9OuJW3KZ9Zl8dpeI/ijHugaWUEGRhYmZiTPAj0pqKBoKGBgBHYIMJjsGfft4FUPUQoubDV8vh+oSQ6oiZkFXROzkIKhgJIBWBcTSNcZzgc7eB9cj0oN0TPOu+yovB+kVw/ofUYmFmYWbrheoPWCLELCioZGjgpKToXGDs4BQYnJRRMXHoQGBZs909dmscVpX3auf7if/6zBmQ7G4rLX97auLu9l1E9yP5SxkXnaQ7bfT/fPValadXpO+ZTCG7PrVptsYtto/vLaOnPZeUxt0ySjco5nv9lvZVHjo6gq+/CKlMPGrEcpN0MrLmQaGGrFLy5YOXXDRi2Lu80hXAk9zpPTz/95ax19S+pQ/7Krms3+VstuzdH1F56jFib22m9TxImNNyZG5G8oS5mWqS+5v3vWTPWYNTHzTPmUuSVqOtxNVxpyM63p0j1nvlZSyMYkfWZzzOXEg2aa054tOnyWpcp724K6eXFPgGGhIsAISguMzKyM8HAUVDR0DExUKJzoENC48cNCWGKwV/zV+Kd1z/n2LQuKTyytlr/m/dduRmD07f1HnslyPoi5eF80aP/SV9yv5OyTdNaJzAi6o7Io01a3jm+p1JQwcc61myZ+WvzwZ/9lxk02e4SnGMep77oS7Hv2X81RlueFhR22fEttJ/H/NCyNqnu2SHHWFNO4z9plgRWHPxjMP/f68oZfO9PXFAbM42oouB5g03Hj7M76OOnmy9an1p/rCBfVzNv2nYnB/LHpN3dYHmEApQyBz+dtPp9m71WxeZiYDmJDEdDbkoKMaHmMUZBBQdEAnt4E3jrGKAXLLTrHc1yw47NZ9nlQwpEWBAUWaqITVHBUNDCEpziBs6KCgsuUuNazLOS/8fHqIRNwagWGMiSYWZgZ4daBQrlQQCFx4kYDh4Uf4aEs8C/6S8x+73OZ4k2/987fXlNxrLixdEKRybXIBS/ffNgYEiue9IhPtpufiak5UlfrleA6RZU/Vus1rMqC2xZYlF76tqshOzZh76yNwidmFH++xzlry0R1Y7OpLS1HmM8yH7eoWryCcbVb69677yPiuwR2z/jPcPDD4uqCql1m+fbvjD3WLrY4u+RgQWgT24Or74+F1/z5PmfeBr2OyzPc31teqH6/5mvQx0V/p60/3fq5KCBw8aaO0p7nGavcPRZ8tDOz/Pne2qXwzt/0lbypL9hdFq60KnbIWedrdk/my+8nS4JP1dlIaDZl9a7oW7/5vvfV4EMPlLcm/Txel6TN1uedeE3e5eRkNZ+Z9pv/3wQACKcH8Xic40rJL8lLLdHLKkhnGAUjD5xnhdBSrNjly+vWf2JgAgDB/QeTEg3pkwEAAAACAAAAJgAAABoFAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFolders]
+SxS
+NetFX
+
+[SxS]
+Vista_SxS_x64.reg=438,584
+Vista_SxS_x86.reg=377,503
+win7_SxS_x64.reg=594,792
+win7_SxS_x86.reg=469,626
+win7SP1_SxS_x64.reg=669,892
+win7SP1_SxS_x86.reg=392,523
+
+[NetFX]
+netfx.7z=6770,9027
+
+[EncodedFile-SxS-Vista_SxS_x64.reg]
+lines=0
+0=eJztlOtKw0AUhOe34DuUPkDopndBUIqgeAMRRYyENBct2ETaou3Lq99uqwhWVNAqWsIhe2bmzO7mbPbh/lQ95UpU6E5DlXSkVJdgQ4000ARkC7ZHVpCXdAI/gO2R5+R1earwrGrlOc61rV3qzhRqT4fqaJN3qH3eHbgdHcAGOlZfN+AxXnZkHVNihH+g6cry2XyBIjSJGqpR0YeLwQuYQhkVnm5BWqzEc8wIlYGxWFdVoo2Dwc2ApA4JcZ/OGarJTgxYlzl8xk1qE7KY+XyegCq70wu3w/Is81BW0PqEh6dhVNa6rvAcaw3OOP0G2PyamtM0YN/2NaiqxDzn91xfVyyuS1Z77To1YU1P6/z63kVUZq53dbgITd1lmVObWc9e9qD8D7/C8gR/rHdj1tP4ljvG3iZWm8HYqja7tDdN6u6c1rJDn+zQov6sFDRyTIzCOHWV3Hc1zR+4X37bF/hbJ/cR8XdL1XicEwzLLC5JjA+uCI6vMDPRK0pNZxgFIwiIcULoNEbs8h6LwpkZmABV1QgPEwPE7wEAAAACAAAALAAAAGYBAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-SxS-Vista_SxS_x86.reg]
+lines=0
+0=eJzlkt1Kw0AQhc+14DuUPMDSTWqbCoJSBMU/EFHESKhpqgGbSBu0fXn1220UwYo34oUSJrtzzpmzs5m8PF+oUKmRKj1pppZOlesWbKZaUy1AdmELsoq8pXP4KWxBXpJvyKjNs66197jSng6ou1SqQ51ooB3WVEesA7h9HcMmOtNED+AZXm7nHHOixj/RsrOyOS/RXLG6qCfgGVgFWmmM2ugRJKYL45kalYVx2I0ioq8hSE7EvB2S4rw8LyXLvHYM46r66nCvHtxIIXhCuFte+9sFTWbQtFGFhKHSsgu0pTvq5tqEs16/Dba6puM1XdivfS2qiFjl/J3r54rfmZDT3fspLejnrcefn1sOOvRMhsJ6dUQe+ppeM6+P3z/4Z1/gb/25rxPhq+94nBMMyywuSYwPrgiOr7Aw0ytKTWcYBSMIrGOB0BqM2OUjrGunMDABAG12CMgPbXyDAQAAAAIAAAAtAAAAKAEAAAAAAAABAAAAAAAAAAAAAAA
+
+[EncodedFile-SxS-win7_SxS_x64.reg]
+lines=0
+0=eJztl/tK40AUxr+/Bd9BfIDQaexlFgQvCLusrqCyy2KkxDTRwrYVL6u+vLu/OaZiESwWrVpCmGTmXCfflzMz+Xf3Sz0N1NVQ17rQkvaU6wTZhS51rlskW2h7jIaMl/QT/TnaHuMB44Yi1bgWtfDQDvVV3/H7rY62tatNrfPsaIfnJrpv+oE20YH6OkO+T6yCDNdKiZ2j2SF+Rn9IpntdovGZJkS6wiLYD9CPzyshZg/bXBu8w6g/ijEobRPy9dE0tcIs+k9yRvqLpM3bRaa5xMqhCbJjxTRPBEc0hyQ3SYfoQ8vQUQt0HLJjctTpt/DtMsrIV+dK8AroHRlqy+UowrKGbZ0WYemtt6xVnRL1Rl/QOvNYQzbJaz458VNzkoJLm+gBH8fdkyvDJiVfC0mC5DEnvkQ3LtH1D+g2n+Hkea/PzckZnn8s7y1vNfr6Xr96UjwLq54GuhSbho0Ks3YlQ49roEL2dZCt1qWXMeUnMDX9ahVYCTtFZutWAZY5do6n5x6P1YCfwxp4P2RnuQ98LrZubP98i/NSOBkF2wJNYeyu2Kkpt/NTu1qXpuJj+hrJ0cZc95zUrGLCKSljJi2uqkYmcTKr1awGWl37D3O0puEY/jXa5Sl3PvaJj4Zq9f2/jKm3O9GGvTs1TYaFM+u45CkH1fn4V/hoqM5qP/4PRS77tXicEyjPzDOPD64Ijq8wM9ErSk1nGAUjCSwTgtBMTNjlI1dXfmBgAgBSOQjrjpBZOwEAAAACAAAALAAAAAICAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-SxS-win7_SxS_x86.reg]
+lines=0
+0=eJztlXFLwlAUxc/fQd9B/ABjc6UuCCoJirKgoogmw9ysQTpRS/3y1W/PKYigJFEpMa7v3XPuve+9c5/bx/udYrUVKtFAPeV0pUhPYD311dUI5Bg2xkvwc7qF78LG+G38XVmyeba1NbUHneiMvHsFOtelKjpkDFRlrMCd6gLW141a6oBfU6vJCgPVqR3BVKnfYJ6w0pjzNbtTn0qvRKTxbfjZffnUjImNdMQZJvNJjXYW62uosorsoDW3nqU3kDInswzTJ8qBSbFHuZjHbh0qOSCRQQIqJ6Z6gNcwsU2YNMvTDlqV4EIVwH0sVa5mFMtnnkWMTVQBs8jwzCyvfT2TOdQerGMyDsCWZW1eP7yV+xHBujzjntiwBZQq4Yf8lljbm+mHlynrZsp6U2WLC/qxOGu9/yMdsl7MmiNONTnp93fKRq3QvFMcrGh0bIKUGR1ya3N6r/NN/yuq/t//r3WqvKRTq385ItC6YRpEOCbazfoUoWpt7v2/Off/91T9ye/xJxIYgpF4nBMoz8wzjw+uCI6vsDDTK0pNZxgFIwmUcULoVkbs8pPmrdnMwAQAYp0JWtcxz+kBAAAAAgAAACwAAACFAQAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-SxS-win7SP1_SxS_x64.reg]
+lines=0
+0=eJztl/Fr01AQx78/C/4PY39AyGtX0wwG6hAUnYKKIkZKliZasO3Yptv+efXzrulgLm1tjbMNJbwm777fu3vv3uVy/fnjvQYaqa+xLnSmHb1Wrs/IznSuU10heQI6YDZmvqN34KegA+Yj5h0FCrnu6971+Kineo7eB/X0Qq90qEfcezrifgj2TC9BE73VUCfI32CrwMOFUmznIEfYz3ge42mCJbq50gRL32B4/gj85roSbA7g5nrMHqbPUxujkpvgbwjyQHusYnjLZ6DvSLrsLjDkHJYD8bJjtRkxFhzWHJLcJD2sj81DTxHRcciO8dHiOUK3zyzDX4srQctH75NF7aEOtFtKAtgh/BYjgB0zQlDPq+ZE7KIFdqAv+L7UPpibw49tBX/O9/477HAZjemqb2s0L0vilbMkJV5drPsTcfzG+MrgpPiLkCRIfs+SuIx3u4x3XJEl8zlVp1it4RjdJTTcAq7fZWjZF8ywu7nZcYLmV/N7Zbub7Lj+ypKiWVhl8e9kCqdjs8LYrqKi7G4jW0tktzV703MnXpA7q1dynyf+hDKr6QWRzeE57jG/7YoK3qy38v9FdvuNXO+cubQO51/02L6b9twCpLAc27NOO7eeu1trvZ6fGfVU4NnfhGad+Oq1IAdtc01OPbTK4DvljJVEXJtQCxa/38vUjc3Njrvq6vzXIjUkg+GM3WbeMp2oIf3yukW1ObV3locmVeq76uV83esrtGiFeI6so+uXeRM3pEtet6j+7Vex3i9WXX30ov+rfvwCmnNtfXicEy7PzDMPDjCMD64Ijq8wM9ErSk1nGAUjBjwRg9BeTNjly9c8S2FgAgAh7gpMMXSXWwEAAAACAAAALwAAAEoCAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-SxS-win7SP1_SxS_x86.reg]
+lines=0
+0=eJzNkt9qwjAUxu8F36H0AULSVJMMhDkRHNMN5piMZYQ2Od0Cs5G0m/r2S5l64YXsDxRvwskhOXy/73wLWxq3rqJ7eLVV7bfR2Nja+egRfGVdGfUQxt1Ot/M8uRk/qendaDhVs+Focn07lg/LlZq7ol5nHuTMau+qcJOL75Fy9OE9lPVukpxbA1fb5mxelKErN7yvlvt/6FNzjLSvFSk0z2kuMgKEA81V6UpQuda8oIUWaY+BSfjLecqSHOEg7XIQhwL1MEsYSkWK427nuDN4g80FJg1HSyTiFAlklAYWnCcp04ax9gz+lSwp9gaHAtFgpzgYfNRpx+CVe7d6i5rl/jg1wDMOmhCRUZ4QYIfExGcv9ewCvoMSR1AnQ4UTgzHBfZYUJlCJQ6Ba8f9fUv+W/y/Edeo2eJwTLs/MMw8OMIwPrgiOr7Aw0ytKTWcYBSMGvGCF0KaM2OV35L3TY2ACACWqCgJ0VG/qAQAAAAIAAAAvAAAANQEAAAAAAAABAAAAAAAAAAAAAAA
+
+[EncodedFile-NetFX-netfx.7z]
+lines=2
+0=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
+1=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
+2=dR8YuECRC8JPHPROGCvnRpZE1FfmIGyI9heeMT0Ukdcw9XaerJEqeYGSi7zEKkX9krhKmRAqvr8JbQ47XqkwCQASyiS3hePnzLSuRF1CcQ55KNz+Tj9doVF+3Ug4DTa+PyWAfXH+OikMCb73yFuvQPK0HLTZPfgTrHYr49zU4HUvmy+Y1H/oszJYXru8yr5QES/cX+AO2FFrR5EwvAGrtyBXBsAj6jQv0klP81adhs0E8l6Ma1b9fERWP9r6KvLee0xgeyN1o/lA2Nl8jsreUXWwoHSSm/7OeojYnP21t9p0BXQ7BtTvOgqVPdF3hqVJailKnbur7EEOufUs5o2f6vGV7QLWG2mGjurJnnmU0aGlAr3kDr1Zt3i4XoDq9O4iLa0HTPUHFosoDojGPf2F9sCa2/q/KgptDgAAgTMHrg/WQDiVOcZm2o4cYVMb/XInjsJ8XcPNVcYzR6dUwEy2mlDyj+KaUjXCw/pB7EAjEvETRwmoiOLXBxpOW63yQTc995y+ymiaeZ00TCk6KIUOzrLQyI5rip4S3GzABnMkAAa3yKDLHkY4T3dzc9w5DB84X6SZT4Mr6A287eVPCaR93rfI3wjHqBhn+l9kiWJXavfx13p1tMTgUiRBH4Q9RNN9HWd4roVxIqfEiYUVj+DNhlejK1/d1G0F3YTp3kWhYRwA1GfH4bubOUY6pfCld8VDgm5ZrxcGmRABCYDbAAcLAQABIwMBAQVdABAAAAyBugoBgQK8ogAAeJzjyEstSavQM69iGAUjEehJ4ZffdnhdByMDAJhaBgV+jcezAQAAAAIAAAAgAAAALhoAAAAAAAABAAAAAAAAAAAAAAA
+
+[DownloadXXX]
+Call,DownloadXQ
+
+[UploadXXX]
+Call,UploadXQ
+
+[InterfaceEncoded]
+DoubleJDesignRavenna3dArrowDown0016016.bmp=622,830
+BokehliciaCaptivaSoftwareupload0016016.bmp=676,902
+AmperossQetto2Move0016016.bmp=893,1191
+
+[EncodedFile-InterfaceEncoded-DoubleJDesignRavenna3dArrowDown0016016.bmp]
+lines=0
+0=eJzNk09Ik2Ecxw06BF2KqG5ih1EgYZZu7+v7vnu3d++2MpelRFHgQZEaJLVIXSxrW4Wauf7Nwha2rQ7dOgT9IQT1EkQHi+hSHfRSUZrMcp389PjSoUib3vrB9/I8fD78fr+Hxwi0LS+yyi6ySWSVyGqRZUUl1rnr1/3vBfy3+TTxkabuAzx4dp+lsu/G31LRXIrjaCmeVjtfpj4v2jH+YQwpWIYc3orctgUptJkT/UcWxc/1rLXYqYpKqGcklEglcns5DuF48uLhPx2TUxOYIRWlU8PZraOdU1GjMsop4RO9+DucfM1NzuvIfctR3Wai9hq4rvrREybOCy608xpqrAqlQzhObiOSbv2Ln8nPsDvsZ33dSoob1mE7XIIsetAvCUePG63TiRpXUE47rJ0MvRz8wzH9fZqR0SHSj1LUhn2s8a6gMi7hTm7HddmLftHA2aVT2mJjY3Mx7naJ/I/8vHN0Zc5avKNLw+gP4O7bgeuKD73XQyDqI5QM8ur96IJ7jKUiFi8nDDwDezBuCsf1amsnA4Opgm8Y7jtu8UrSj3lnL+btOjypXRg3dpIdThfkjyWCFu9M1eC7tx/vXeFIC8etWjKL4IPdTRZfFqtAvua1PJ5sPWamnuxIpiD/9Plj4ukIh3oaqGk3KG+0sWHfWhp7DvJm7PWS/9FcZmdnF+R+AlbU23p4nNNyyS9Nykn1ckktzkzPC0osS83LSzROcSwqyi93yS/PMzAwNAMivaTcAoZRMPxAGQuEZmPCLu9y8YwcAxMAHjMRfb+2diEBAAAAAgAAAEQAAAAGAgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-InterfaceEncoded-BokehliciaCaptivaSoftwareupload0016016.bmp]
+lines=0
+0=eJytU21LWmEYbrAfsP0De4H2pRcqRq+0RllUZkav1O+YIH2JPvUhKKJfUE3aaCNQQR3pYWDTPCpBMKUxSczjZDB0Q8UPV/d9L0tdg33YAxfn5nq5n+c85z4vDa8e18l6TnhGeEJ4SnhUpxP+xa1euQD8V5RKJeTzeeRyOWSzWQHXzLH2t1yxWEQikYDb7cXu7iHW1/exuron4Jo51tjD3tqsw3GC+fn36O39hJ6eh8Eae9hb2SMYjGB42Iu+Pv8/gb2cKb+v2fwGAwOBGvhpTzfhg9S1utn8FuW7MplOMDQUwMhIgHrfY3Mzio2Nz1Uce9jLGc5mMhni/WhuPoROt4/6+td3ODpKwGqNV3HsYS9nOBuLfUFLyzG6ulzEnVXB4/kOpzPzB89eznD24iKKxkar9NPrg7fwYG7OBp/vGxRFw+ysDaOjnjudvZzhbDR6iY4OO/V0YHJSxdiYiq2trygUSri+zuLq6ofU29tx0djT2WmTDGdTqbRw3d1O+jYfMTGhYno6TL1zKC+uTaawaDrdHtrajiWjaWn5BgsLfhgMIZoPL6amQlKvrJzT/gUkkwUsL58Lx2hoOJAnZ8rzbLF4YTSG6d18dAY3nfMUg4MK7RmULGu/oUqea4tFqZi/JGZmwnJGgyEg8zU+fip3otcrdJcRusMQ2tt5vl3iVdVU1T9gt6exuMi+exiNZ2htfYempgNBf78LS0sRsPehf1DTfoq2sxPH2tolnTEm4Jo51tLpX1XZG70Y6I54nNNyys9OzcjJTM5MdE4sKMksSwzOTyspTyxKLS3IyU9MMTAwNAMivaTcAoZRMPxAGQuEtmHCLs9kcFmVgQkAJ9URXc7wHxQBAAAAAgAAAEQAAAA8AgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[CompareEditXXX]
+Call,CompareEdit
+
+[EncodedFile-InterfaceEncoded-AmperossQetto2Move0016016.bmp]
+lines=0
+0=eJxtk1lIVFEYxw16agEVzTRncRtt0cx0NCu0QlsgyyCih7Cgh6KFNgQzSsqnFohUEm3FlqmsVGxxxoxSyYkpTcctsiKXtCZ1mPXee878++5o4YMf/DjfnXN+//sdmLt2s3amj7e0RAzhO8kMH7XPv/KfPcF0NXd7RXRg3ufCoDMD+nkFQ8Z5BYOTDBmDCgYNgXlfCudsq4yZzg3I7ToSfMHmVJQBilLi6pT1X097IZdsroBc87GpblB+zwHVNUBJ50JLBAQUSVhQIkJB/X+KBYQWCd4s1XUgKL/3kOz6HTYpQ4scbq9fLsL/ooAV50ahueKE8oYI1TWBoLVcgLKMKJWf6T1XHILv8WaVothyMlwHqG+KmHVJxKHbFnjs49j5zAnf2xyqexLC74hewm6JdE6AmjLDH1BGseVU2E17VeRjIIBmPFhhASQnnneK0Fy2IYaIKHEi9C6DXxmDWscQeY+yKkREPpLfaa+JuO/Wh5C/9bEd4C7INWyxw/bbCmnUiuZeK9bpHDhfY0FkuQvKSo6ohxKiqoCIu+76qEp3XUQtkFDL0DYm2x4863bjdAdwthfY0QKsMYjgYNDTAQVlqJ9yLHwBaB66DdFPhbol9TRLDUPsS4bWMQ+sYw6kVjuwhmbaXzuOvTVWVJtpPkqpbx/DYp0b0a+AmGrBsKhWMMS+AWL1dDcipZGhctiDHSYRbRY3OSIhYdwlYaI4cppdCGsAFr8Q6uNeiU/iacalrxkSyI1ropxGCXEtDGs/cmxq50hrlvCkx+G9W/F3DzQNDLITpxerEhrFE0ntwLK3DInvGLTvGZI/0BytHInka0wce9tpDo+E0gEPwuncUkJ2ljeJuUlGzNcamS3pA8iVkEJO6ieOVR2EmXpaN3Zz7PviQbyJPMrXfgSSjcy+2mQPlv+DaR3CrrSvQGon0caxmry0Lo508tJ7KIf6BLqHvLeyC0j/RpiFnKnfQEa3sDujj1syR4CMn0AmsZ76DSMTvfe3X8C6Pv4n0yzsme4bzO6yB2f1s6NZ/VyX9YPVZU+yhcjqlx5kD9FetyNkqvMXP3mcf3ick3XMLUgtyi8uDkwtKck38s0vSzUwMDQDIr2k3AKGUTDMgRkLhFZixi4vra37hIEJABkJC8Gkai7oAQAAAAIAAAA3AAAAIgMAAAAAAAABAAAAAAAAAAAAAAA
+

@@ -1,0 +1,2065 @@
+[Main]
+Title=1 - Copy Files
+Type=Plugin
+Author=NightMan, YahooUK, JFX, ChrisR
+Description=(Win7PESE) Make folders and copy all basic files. This step is fundamental to add all needed system files.
+Credits=All credits go to Microsoft for developing this Operating System and to everybody helping on the debugging and improvement of this Plugin.
+Version=067
+Download_Level=0
+Level=1
+Selected=True
+Mandatory=True
+NoWarning=False
+Contact=http://TheOven.org/index.php?board=20.0
+Date=2017.11.22
+Depend=
+Disable=
+Web1=http://w7pese.cwcodes.net/Projects/Win7PESE/Build/1-files.Script
+CertifiedBy=
+Certification=
+HistoryNotes01=
+History042=ChrisR - The old history is stored in the section [History]
+History042=ChrisR - Hide some choices for Full copy
+History043=ChrisR - StandardFonts
+History044=ChrisR - Fix a wrong test
+History045=ChrisR - UEFI support for 64 bits building. For 32-bit we'll have to use UEFI CSM mode.
+History046=ChrisR - backward SideBySide controls.resources for all languages
+History047=ChrisR - en-US fallback Improvement
+History048=ChrisR - Diskpart and dependencies moved here
+History049=ChrisR - SideBySide Catalogs folders required for Add-Package
+History050=JFX - Take Ownership
+History051=ChrisR - DirDelete,%TargetDir% complement
+History052=ChrisR - Config file created here now instead of Shell & Config
+History053=ChrisR - Startup Repair tool shortcut shouldn't be used directly but it run from Recovery Tools menu. Thanks anshad
+History054=ChrisR - Better to select all keyboards and all Language (All nls)
+History055=anshad - Remove "Sources" folder if Recovery Environment not selected for Full or SmallFull Files copy
+History057=ChrisR - Copy *_microsoft.windows.c..-controls.resources WinSxS folder and manifest only for %distlang%
+History058=ChrisR - EFI boot menu
+History059=ChrisR - Change Filecopy \* by Dircopy, Safer.
+History060=Lancelot - Added DU buttons - Compare // Call,DirDeleteE,%TargetDir% // Cosmetics
+History061=ChrisR -  Add wofadk.sys driver, to use in all WinPE to access the host compressed files of Windows 10 Compact. Thanks JFX
+History062=ChrisR - Add en-US fallback for the copy of Windows\Boot\EFI\%distlang%
+History063=Lancelot FileCopy * have unicode bug - workaround with DirCopy * bug - nbsp http://TheOven.org/index.php?topic=1724.0 - Date:2016.04.03
+History064=Lancelot - Now Wow64 plugin runs at the end of process.
+History065=Rui Paz - Create User Account Picture folder used by explorer(s) and display (switch to admin) plugin. - Date:2017.01.26
+History066=Lancelot - Add [Cache_SCD_Info_Additional_Plugin] - Date:2017.01.31
+History067=Lancelot %ISODir% deprecated - Date:2017.11.22
+
+[Variables]
+%b32%=%BootSRC%\Windows\System32
+%bw%=%BootSRC%\Windows
+%tw%=%TargetDir%\Windows
+%t32%=%tw%\System32
+%i32%=%InstallSRC%\Windows\System32
+%iw%=%InstallSRC%\Windows
+ReqSys32=Run,%ScriptFile%,Process-ReqSys32
+ReqB32=Run,%ScriptFile%,Process-ReqB32
+ReqWin=Run,%ScriptFile%,Process-ReqWin
+ReqBWin=Run,%ScriptFile%,Process-ReqBWin
+CopyDesktopIni=Run,%ScriptFile%,Process-CopyDesktopIni
+%AttribexeFolder%=
+%CmdexeFolder%=
+
+[Process-ReqSys32]
+If,Not,ExistFile,%TargetDir%\Windows\System32\#1,FileCopy,%InstallSRC%\Windows\System32\#1,%TargetDir%\Windows\System32\#1
+If,Not,ExistFile,%TargetDir%\Windows\System32\%DistLang%\#1.mui,Begin
+If,ExistFile,%InstallSRC%\Windows\System32\%DistLang%\#1.mui,FileCopy,%InstallSRC%\Windows\System32\%DistLang%\#1.mui,%TargetDir%\Windows\System32\%DistLang%\#1.mui,PRESERVE
+End
+If,Not,ExistFile,%TargetDir%\Windows\System32\#1,FileCopy,%BootSRC%\Windows\System32\#1,%TargetDir%\Windows\System32\#1
+
+[Process-ReqWin]
+If,Not,ExistFile,%TargetDir%\Windows\#1,FileCopy,%InstallSRC%\Windows\#1,%TargetDir%\Windows\#1
+If,Not,ExistFile,%TargetDir%\Windows\#1,FileCopy,%BootSRC%\Windows\#1,%TargetDir%\Windows\#1
+
+[Process-ReqB32]
+System,ErrorOff
+If,Not,ExistFile,%TargetDir%\Windows\System32\#1,FileCopy,%BootSRC%\Windows\System32\#1,%TargetDir%\Windows\System32\#1
+
+[Process-ReqBWin]
+System,ErrorOff
+If,Not,ExistFile,%TargetDir%\Windows\#1,FileCopy,%BootSRC%\Windows\#1,%TargetDir%\Windows\#1
+
+[Process-CopyDesktopIni]
+If,ExistFile,#1,Begin
+If,Not,ExistDir,#2,DirMake,#2
+FileCopy,#1,#2
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S +R #$q#2#$q"
+End
+
+[Interface]
+CopyMode_TextLabel="File Copy:",1,1,10,12,53,18,8,Normal
+CopyMode_ScrollBox=Standard,1,4,72,9,150,21,Standard,SmallFull,Full,_CopyMode_Choice_,True
+SmallFull_TextLabel="Full with reduced WinSxS folder and resource specific Languages folders.",0,1,72,32,360,18,8,Normal
+ClearTarget_CheckBox="Clear Target Folder",1,3,9,46,121,18,True
+AllNls_CheckBox="Other Language Files (All Nls)",1,3,9,66,166,18,True
+AllKbd_CheckBox="Add All Keyboards",1,3,9,86,109,18,True
+AddFonts_CheckBox="Add All boot Fonts",1,3,9,106,119,18,True
+Logo_CheckBox="Win7 Animated boot logo (not recommended for slower computers)",1,3,9,126,345,18,False
+Custom_CheckBox="Copy Custom Folder",1,3,9,153,125,18,False
+Custom_FileBox=%BaseDir%\Custom\Win7PESE,1,13,25,172,220,20,dir
+CustomOpen_Button=,1,8,249,170,24,24,CustomOpen,opendir.bmp,False,_CustomOpen_,False,"__Open Custom Folder"
+Custom_TextLabel="If selected, all files and subfolders from the selected path will be copied into your build. ",1,1,278,169,220,34,8,Normal
+RecTools_CheckBox="Windows Recovery Environment",1,3,9,213,188,18,True
+pTextBox1="Start Menu folder",1,0,25,251,170,21,"System Tools"
+pTextBox2="Name",1,0,210,251,170,21,"System Recovery"
+pBevel2=pBevel2,1,12,3,208,384,71
+Desktop_CheckBox="Local Folder Names (desktop.ini)",0,3,365,87,182,18,True
+AdmTools_CheckBox="Add Administrative Tools",0,3,365,50,149,18,False
+MuiFiles_CheckBox="Add All Mui Files",0,3,365,70,149,18,False
+WebLabel_Plugin="Plugin Page",1,10,338,4,55,18,http://TheOven.org/index.php?board=9
+Button_Download=,1,8,441,21,24,24,DownloadXXX,DoubleJDesignRavenna3dArrowDown0016016.bmp,False,False,_DownloadXXX_,False,"__DOWNLOAD Plugin"
+Button_Upload=,1,8,441,-1,24,24,UploadXXX,BokehliciaCaptivaSoftwareupload0016016.bmp,False,False,_UploadXXX_,False,"__UPLOAD Plugin (Admins Only)"
+Button_CompareEdit=,1,8,463,-1,24,24,CompareEditXXX,AmperossQetto2Move0016016.bmp,False,False,_CompareEditXXX_,False,"__DOWNLOAD and Compare with an Editor"
+
+[CopyMode_Choice]
+System,CURSOR,Wait
+If,%CopyMode_ScrollBox%,Equal,Standard,Begin
+Visible,%AllNls_CheckBox%,True,PERMANENT
+Visible,%AllKbd_CheckBox%,True,PERMANENT
+Visible,%AddFonts_CheckBox%,True,PERMANENT
+//Visible,%Desktop_CheckBox%,True,PERMANENT
+//Visible,%AdmTools_CheckBox%,True,PERMANENT
+End
+Else,Begin
+Visible,%AllNls_CheckBox%,False,PERMANENT
+Visible,%AllKbd_CheckBox%,False,PERMANENT
+Visible,%AddFonts_CheckBox%,False,PERMANENT
+//Visible,%Desktop_CheckBox%,False,PERMANENT
+//Visible,%AdmTools_CheckBox%,False,PERMANENT
+End
+//-
+If,%CopyMode_ScrollBox%,Equal,SmallFull,Begin
+Visible,%SmallFull_TextLabel%,True,PERMANENT
+End
+Else,Begin
+Visible,%SmallFull_TextLabel%,False,PERMANENT
+End
+System,RefreshInterface
+System,CURSOR,Normal
+
+[Process]
+If,ExistFile,%ProjectTemp%\Basic_PluginCache_Extract.ini,Echo,"Basic PluginCache"
+If,Not,ExistFile,%ProjectTemp%\Basic_PluginCache_Extract.ini,Run,%ScriptFile%,Process_Normal
+
+[Process_Normal]
+If,ExistFile,%ProjectTemp%\HostOSTools\Attrib.exe,Set,%AttribexeFolder%,%ProjectTemp%\HostOSTools\
+If,ExistFile,%ProjectTemp%\HostOSTools\cmd.exe,Set,%CmdexeFolder%,%ProjectTemp%\HostOSTools\
+//--
+//ReadENV
+IniRead,%ProjectDir%\script.project,IniVariables,NoWarnRegOverWrite,%NoWarnROW%
+IniRead,%projectdir%\script.project,IniVariables,BootType,%BootType%
+IniRead,%projectdir%\script.project,IniVariables,BootMenu,%BootMenu%
+IniRead,%projectdir%\script.project,IniVariables,BootMenu_Target,%BootMenu_Target%
+IniRead,%projectdir%\script.project,IniVariables,OtherOS_Target,%OtherOS_Target%
+IniRead,%projectdir%\script.project,IniVariables,EfiBootType,%EfiBootType%
+IniRead,%projectdir%\script.project,IniVariables,EfiBootMenu,%EfiBootMenu%
+IniRead,%projectdir%\script.project,IniVariables,EfiBootMenu_Target,%EfiBootMenu_Target%
+IniRead,%projectdir%\script.project,IniVariables,OtherOS_EfiTarget,%OtherOS_EfiTarget%
+//--
+If,%ClearTarget_CheckBox%,Equal,True,Run,%ScriptFile%,ClearTarget
+//--
+StrFormat,Path,%IsoFile%,%IsoFolder%
+StrFormat,CTrim,%IsoFolder%,\,%IsoFolder%
+If,Not,ExistDir,%IsoFolder%,DirMake,%IsoFolder%
+//--
+Run,%ScriptFile%,MakeDirs
+//--
+Set,%LanPackDistLang%,%DistLang%
+If,%CopyMode_ScrollBox%,Equal,Standard,run,%ScriptFile%,FileCopyStandard
+If,%CopyMode_ScrollBox%,Equal,SmallFull,run,%ScriptFile%,FileCopySmallFull
+If,%CopyMode_ScrollBox%,Equal,Full,run,%ScriptFile%,FileCopyFull
+////If,%CopyMode_ScrollBox%,Equal,minimal,run,%ScriptFile%,FileCopyMinimal
+//--
+//If,Not,ExistFile,%ES%,FileCreateBlank,%ES%
+//If,Not,ExistFile,%AutoRunFile%,FileCreateBlank,%AutoRunFile%
+If,Not,ExistFile,%PECfg%,Run,%ScriptFile%,CreatePECfg,%PECfg%
+If,Not,ExistFile,%PECfgCD%,Run,%ScriptFile%,CreatePECfg,%PECfgCD%
+If,Not,ExistFile,%target_sys%\winpeshl.ini,FileCreateBlank,%target_sys%\winpeshl.ini
+//--
+If,%CopyMode_ScrollBox%,Equal,Standard,Begin
+// Copy All boot.wim fonts
+If,%AddFonts_CheckBox%,Equal,True,Run,%ScriptFile%,AddFont
+Else,run,%ScriptFile%,StandardFonts
+//--
+If,%AdmTools_CheckBox%,Equal,True,Begin
+// AdmTools_CheckBox False and hidden from interface - May cause duplicate shortcuts with MMC (+adding manual names....) + or unwanted shortcut (eg: Task Scheduler). Better add any adm. tools through mmc script.
+If,Not,ExistDir,"%targetdir%\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools",DirMake,"%targetdir%\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools"
+DirCopy,"%InstallSRC%\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools","%TargetDir%\ProgramData\Microsoft\Windows\Start Menu\Programs\"
+End
+End
+//--
+If,%RecTools_CheckBox%,Equal,True,run,%ScriptFile%,RecTools
+//--
+If,%Custom_CheckBox%,Equal,True,Run,%ScriptFile%,Custom
+//--
+If,ExistFile,%TargetDir%\Boot\Bootfix.bin,Call,FileDelete,%TargetDir%\Boot\BootFix.bin
+If,ExistFile,%TargetDir%\Boot\Bootfix.bin,Call,FileDelete,%TargetDir%\Boot\BootFix.bin
+//--
+//-- Lancelot tips : no duplicate options in menu.lst
+If,ExistDir,%ProjectCache%\OtherOSMenu,DirDelete,%ProjectCache%\OtherOSMenu
+DirMake,%ProjectCache%\OtherOSMenu
+//--
+If,%BootType%,Equal,MultiBoot,Begin
+If,Not,ExistDir,%BootMenu_Target%,DirMake,%BootMenu_Target%
+If,ExistFile,%BootMenu%,FileDelete,%BootMenu%
+FileCreateBlank,%BootMenu%
+If,Not,ExistDir,%OtherOS_Target%,DirMake,%OtherOS_Target%
+End
+// for efi boot Menu
+If,Not,ExistDir,%EfiBootMenu_Target%,DirMake,%EfiBootMenu_Target%
+If,ExistFile,%EfiBootMenu%,FileDelete,%EfiBootMenu%
+FileCreateBlank,%EfiBootMenu%
+If,Not,ExistDir,%OtherOS_EfiTarget%,DirMake,%OtherOS_EfiTarget%
+//--
+//Check History20 "The Vista start bar is much faster with USB than iso. " --> comment following lines to get slow iso boot with boot animation (standart or full copy required)
+If,%Logo_CheckBox%,Equal,False,Begin
+If,ExistFile,%t32%\bootres.dll,Call,FileDelete,%t32%\bootres.dll
+If,ExistFile,%t32%\%DistLang%\bootres.dll.mui,FileDelete,%t32%\%DistLang%\bootres.dll.mui
+End
+//--
+Run,%scriptfile%,Process_TimeZone
+//--
+Run,%ScriptFile%,Process_Keyboard
+//--
+Run,%scriptfile%,Process_Format
+//--
+Run,%scriptfile%,Process_Locale
+//--
+//If,%Desktop_CheckBox%,Equal,True,Run,%scriptfile%,CreateDesktopIniFiles
+Run,%scriptfile%,CreateDesktopIniFiles
+//Add project's url
+ExtractAllFiles,%ScriptFile%,Icons,%target_sys%
+Add,Url,,"Win7PE SE MSFN.url",http://www.msfn.org/board/topic/149758-win7pe-se/,#$psystemroot#$p\System32\msfn_modrica.ico
+Add,Url,,"Win7PE SE The Oven.url",http://TheOven.org/index.php?board=20.0,#$psystemroot#$p\System32\TheOven.ico
+//--
+If,ExistFile,%ProjectDir%\Build\5-Wow64.script,Exec,%ProjectDir%\Build\5-Wow64.script,Process
+
+[ClearTarget]
+If,ExistDir,%TargetDir%,Call,DirDeleteE,%TargetDir%
+
+[ClearTarget_CANCELLED]
+If,ExistDir,%TargetDir%,Echo,"Deleting [%targetdir%]"
+If,ExistDir,%TargetDir%,DirDelete,%TargetDir%
+If,ExistDir,%TargetDir%,Shellexecute,Hide,%CmdexeFolder%cmd.exe,"/C rd /s /q #$q%TargetDir%#$q"
+If,ExistDir,%TargetDir%,Call,DirDelete,%TargetDir%
+If,ExistDir,%TargetDir%,Run,%ScriptFile%,EchoWarn10,"%TargetDir% could not be deleted!"
+If,ExistDir,%TargetDir%,Message,"%TargetDir% could not be deleted!"
+If,ExistDir,%TargetDir%,Halt,"%TargetDir% could not be deleted!"
+
+[MakeDirs]
+Echo,"Making directories .."
+If,Not,ExistDir,%TargetDir%,DirMake,%TargetDir%
+////Set the NTFS permissions on target folder to Full Control to everyone - this avoids the black screen on boot problem
+//Call,HostWindowsDir
+//If,Not,ExistDir,%HostWindowsDir%\SysWOW64,ShellExecute,Hide,%Tools%\SetAcl.exe," -ot #$qfile#$q -on #$q%TargetDir%#$q -actn ace -actn setprot  -op #$qdacl:p_nc#$q  -ace #$qn:S-1-1-0;p:full;s:y#$q"
+//If,ExistDir,%HostWindowsDir%\SysWOW64,ShellExecute,Hide,%Tools%\64\SetAcl.exe," -ot #$qfile#$q -on #$q%TargetDir%#$q -actn ace -actn setprot  -op #$qdacl:p_nc#$q  -ace #$qn:S-1-1-0;p:full;s:y#$q"
+ShellExecute,Hide,%Tools%\%OSArch%\SetAcl.exe," -ot #$qfile#$q -on #$q%TargetDir%#$q -actn ace -actn setprot  -op #$qdacl:p_nc#$q  -ace #$qn:S-1-1-0;p:full;s:y#$q"
+If,Not,%ExitCode%,Equal,0,Run,%ScriptFile%,EchoWarn10,"SetAcl - NTFS permission on target folder FAIL -> Black Screen on boot"
+//- Attention mkisofs is case sensitive
+If,Not,ExistDir,%targetdir%\Boot,DirMake,%targetdir%\Boot
+If,Not,ExistDir,%targetdir%\Boot\fonts,DirMake,%targetdir%\boot\fonts
+If,Not,ExistDir,%targetdir%\Boot\%DistLang%,DirMake,%targetdir%\Boot\%DistLang%
+If,Not,ExistDir,%targetdir%\Boot\en-US,DirMake,%targetdir%\Boot\en-US
+If,Not,ExistDir,"%targetdir%\Program Files",DirMake,"%targetdir%\Program Files"
+If,Not,ExistDir,"%targetdir%\Program Files\Internet Explorer",DirMake,"%targetdir%\Program Files\Internet Explorer"
+If,Not,ExistDir,%targetdir%\ProgramData,DirMake,%targetdir%\ProgramData
+If,Not,ExistDir,"%targetdir%\ProgramData\Microsoft\User Account Pictures",DirMake,"%TargetDir%\ProgramData\Microsoft\User Account Pictures"
+//If,Not,ExistDir,%targetdir%\sources,DirMake,%targetdir%\sources
+If,Not,ExistDir,%targetdir%\Users,DirMake,%targetdir%\Users
+If,Not,ExistDir,%tw%,DirMake,%tw%
+If,Not,ExistDir,%tw%\en-US,DirMake,%tw%\en-US
+If,Not,ExistDir,%tw%\%DistLang%,DirMake,%tw%\%DistLang%
+If,Not,ExistDir,%tw%\inf,DirMake,%tw%\inf
+If,Not,ExistDir,%tw%\fonts,DirMake,%tw%\fonts
+If,Not,ExistDir,%tw%\schemas,DirMake,%tw%\schemas
+If,Not,ExistDir,%tw%\schemas\EAPHost,DirMake,%tw%\schemas\EAPHost
+If,Not,ExistDir,%tw%\servicing,DirMake,%tw%\servicing
+//If,Not,ExistDir,%tw%\Vss,DirMake,%tw%\Vss
+If,Not,ExistDir,%tw%\wpeprofiles,DirMake,%tw%\Wpeprofiles
+//If,Not,ExistDir,%tw%\Help,DirMake,%tw%\Help
+//If,Not,ExistDir,%tw%\LiveKernelReports,DirMake,%tw%\LiveKernelReports
+If,Not,ExistDir,%tw%\Logs,DirMake,%tw%\Logs
+//If,Not,ExistDir,%tw%\Microsoft.NET,DirMake,%tw%\Microsoft.NET
+//If,Not,ExistDir,%tw%\PolicyDefinitions,DirMake,%tw%\PolicyDefinitions
+//If,Not,ExistDir,%tw%\resources,DirMake,%tw%\resources
+//If,Not,ExistDir,%tw%\security,DirMake,%tw%\security
+//If,Not,ExistDir,%tw%\tracing,DirMake,%tw%\tracing
+//If,Not,ExistDir,%tw%\Boot,DirMake,%tw%\Boot
+//If,Not,ExistDir,%tw%\Boot\fonts,DirMake,%tw%\Boot\fonts
+//If,Not,ExistDir,%tw%\Boot\dvd,DirMake,%tw%\Boot\dvd
+If,Not,ExistDir,%tw%\Globalization,DirMake,%tw%\Globalization
+If,Not,ExistDir,%tw%\winsxs,DirMake,%tw%\winsxs
+If,Not,ExistDir,%t32%,DirMake,%t32%
+If,Not,ExistDir,%t32%\en-US,DirMake,%t32%\en-US
+If,Not,ExistDir,%t32%\%DistLang%,DirMake,%t32%\%DistLang%
+If,Not,ExistDir,%t32%\config\systemprofile,DirMake,%t32%\config\systemprofile
+If,ExistDir,%b32%\Boot\en-US,If,Not,ExistDir,%t32%\Boot\en-US,DirMake,%t32%\Boot\en-US
+If,Not,ExistDir,%t32%\Boot\%DistLang%,DirMake,%t32%\Boot\%DistLang%
+If,Not,ExistDir,%t32%\recovery,DirMake,%t32%\Recovery
+If,Not,ExistDir,%t32%\dism,DirMake,%t32%\dism
+If,Not,ExistDir,%t32%\driverstore,DirMake,%t32%\driverstore
+If,Not,ExistDir,%t32%\drivers,DirMake,%t32%\drivers
+If,Not,ExistDir,%t32%\wbem,DirMake,%t32%\wbem
+If,Not,ExistDir,%t32%\oobe,DirMake,%t32%\oobe
+If,Not,ExistDir,%t32%\SMI,DirMake,%t32%\SMI
+
+[RemovesFullMuiDir]
+If,Not,%DistLang%,Equal,ar-SA,If,ExistDir,#1\ar-SA,DirDelete,#1\ar-SA
+If,Not,%DistLang%,Equal,bg-BG,If,ExistDir,#1\bg-BG,DirDelete,#1\bg-BG
+If,Not,%DistLang%,Equal,cs-CZ,If,ExistDir,#1\cs-CZ,DirDelete,#1\cs-CZ
+If,Not,%DistLang%,Equal,da-DK,If,ExistDir,#1\da-DK,DirDelete,#1\da-DK
+If,Not,%DistLang%,Equal,de-DE,If,ExistDir,#1\de-DE,DirDelete,#1\de-DE
+If,Not,%DistLang%,Equal,el-GR,If,ExistDir,#1\el-GR,DirDelete,#1\el-GR
+If,Not,%DistLang%,Equal,es-ES,If,ExistDir,#1\es-ES,DirDelete,#1\es-ES
+If,Not,%DistLang%,Equal,et-EE,If,ExistDir,#1\et-EE,DirDelete,#1\et-EE
+If,Not,%DistLang%,Equal,fi-FI,If,ExistDir,#1\fi-FI,DirDelete,#1\fi-FI
+If,Not,%DistLang%,Equal,fr-FR,If,ExistDir,#1\fr-FR,DirDelete,#1\fr-FR
+If,Not,%DistLang%,Equal,he-IL,If,ExistDir,#1\he-IL,DirDelete,#1\he-IL
+If,Not,%DistLang%,Equal,hr-HR,If,ExistDir,#1\hr-HR,DirDelete,#1\hr-HR
+If,Not,%DistLang%,Equal,hu-HU,If,ExistDir,#1\hu-HU,DirDelete,#1\hu-HU
+If,Not,%DistLang%,Equal,it-IT,If,ExistDir,#1\it-IT,DirDelete,#1\it-IT
+If,Not,%DistLang%,Equal,ja-JP,If,ExistDir,#1\ja-JP,DirDelete,#1\ja-JP
+If,Not,%DistLang%,Equal,ko-KR,If,ExistDir,#1\ko-KR,DirDelete,#1\ko-KR
+If,Not,%DistLang%,Equal,lt-LT,If,ExistDir,#1\lt-LT,DirDelete,#1\lt-LT
+If,Not,%DistLang%,Equal,lv-LV,If,ExistDir,#1\lv-LV,DirDelete,#1\lv-LV
+If,Not,%DistLang%,Equal,nb-NO,If,ExistDir,#1\nb-NO,DirDelete,#1\nb-NO
+If,Not,%DistLang%,Equal,nl-NL,If,ExistDir,#1\nl-NL,DirDelete,#1\nl-NL
+If,Not,%DistLang%,Equal,pl-PL,If,ExistDir,#1\pl-PL,DirDelete,#1\pl-PL
+If,Not,%DistLang%,Equal,pt-BR,If,ExistDir,#1\pt-BR,DirDelete,#1\pt-BR
+If,Not,%DistLang%,Equal,pt-PT,If,ExistDir,#1\pt-PT,DirDelete,#1\pt-PT
+If,Not,%DistLang%,Equal,ro-RO,If,ExistDir,#1\ro-RO,DirDelete,#1\ro-RO
+If,Not,%DistLang%,Equal,ru-RU,If,ExistDir,#1\ru-RU,DirDelete,#1\ru-RU
+If,Not,%DistLang%,Equal,sk-SK,If,ExistDir,#1\sk-SK,DirDelete,#1\sk-SK
+If,Not,%DistLang%,Equal,sl-SI,If,ExistDir,#1\sl-SI,DirDelete,#1\sl-SI
+If,Not,%DistLang%,Equal,sr-Latn-CS,If,ExistDir,#1\sr-Latn-CS,DirDelete,#1\sr-Latn-CS
+If,Not,%DistLang%,Equal,sv-SE,If,ExistDir,#1\sv-SE,DirDelete,#1\sv-SE
+If,Not,%DistLang%,Equal,th-TH,If,ExistDir,#1\th-TH,DirDelete,#1\th-TH
+If,Not,%DistLang%,Equal,tr-TR,If,ExistDir,#1\tr-TR,DirDelete,#1\tr-TR
+If,Not,%DistLang%,Equal,uk-UA,If,ExistDir,#1\uk-UA,DirDelete,#1\uk-UA
+If,Not,%DistLang%,Equal,zh-CN,If,ExistDir,#1\zh-CN,DirDelete,#1\zh-CN
+If,Not,%DistLang%,Equal,zh-HK,If,ExistDir,#1\zh-HK,DirDelete,#1\zh-HK
+If,Not,%DistLang%,Equal,zh-TW,If,ExistDir,#1\zh-TW,DirDelete,#1\zh-TW
+
+[CreatePECfg]
+FileCreateBlank,#1
+IniAddSection,#1,main
+IniAddSection,#1,shortcut
+IniAddSection,#1,autorun
+IniAddSection,#1,registry
+IniAddSection,#1,association
+IniAddSection,#1,shells
+IniAddSection,#1,postconfig
+IniRead,%ProjectDir%\script.project,IniVariables,wpeinit,%wpeinit%
+IniWrite,#1,main,wpeinit,%wpeinit%
+IniRead,%ProjectDir%\script.project,IniVariables,ScreenResolution,%ScreenResolution%
+IniWrite,#1,main,screen,%ScreenResolution%
+
+[Custom]
+Echo,"Processing copy Custom Folder..."
+//FileCopy * have unicode bug - workaround with DirCopy * bug
+If,ExistDir,%Custom_FileBox%,DirCopy,%Custom_FileBox%\*,%TargetDir%
+
+[CustomOpen]
+Call,OpenDir,%Custom_FileBox%
+
+[RecTools]
+Echo,"Processing copy Windows Recovery Environment..."
+If,%CopyMode_ScrollBox%,Equal,Standard,Begin
+If,Not,ExistDir,%TargetDir%\sources,DirMake,%TargetDir%\sources
+DirCopy,%BootSRC%\Sources\recovery,%TargetDir%\sources
+End
+//-
+Add_Shortcut,StartMenu,%pTextBox1%,x:\sources\recovery\recenv.exe,%pTextBox2%
+// Startup Repair tool shortcut shouldn't be used directly but it run from Recovery Tools menu
+
+[AddFont]
+Echo,"Processing copy BootSRC Fonts..."
+DirCopy,%bw%\Fonts,%tw%
+
+[StandardFonts]
+ReqBWin,Fonts\8514fix.fon
+ReqBWin,Fonts\8514fixr.fon
+ReqBWin,Fonts\8514oem.fon
+ReqBWin,Fonts\8514oemr.fon
+ReqBWin,Fonts\8514sys.fon
+ReqBWin,Fonts\8514sysr.fon
+ReqBWin,Fonts\app850.fon
+ReqBWin,Fonts\app866.fon
+ReqBWin,Fonts\app936.fon
+ReqBWin,Fonts\cga40woa.fon
+ReqBWin,Fonts\cga80woa.fon
+ReqBWin,Fonts\cga40850.fon
+ReqBWin,Fonts\cga40866.fon
+ReqBWin,Fonts\cga80850.fon
+ReqBWin,Fonts\cga80866.fon
+//Win8 ReqBWin,Fonts\consola.ttf
+ReqBWin,Fonts\ega40woa.fon
+ReqBWin,Fonts\ega80woa.fon
+ReqBWin,Fonts\ega40850.fon
+ReqBWin,Fonts\ega40866.fon
+ReqBWin,Fonts\ega80850.fon
+ReqBWin,Fonts\ega80866.fon
+ReqBWin,Fonts\lucon.ttf
+ReqBWin,Fonts\marlett.ttf
+ReqBWin,Fonts\micross.ttf
+ReqBWin,Fonts\s8514fix.fon
+ReqBWin,Fonts\s8514oem.fon
+ReqBWin,Fonts\s8514sys.fon
+ReqBWin,Fonts\segoeui.ttf
+//Win8 ReqBWin,Fonts\seguili.ttf
+// simpbdo.ttf not exist in %BootSRC% of w7/8 sources
+InstallCopy,Windows\Fonts\simpbdo.ttf
+ReqBWin,Fonts\svgafix.fon
+ReqBWin,Fonts\svgasys.fon
+ReqBWin,Fonts\tahoma.ttf
+ReqBWin,Fonts\tahomabd.ttf
+ReqBWin,Fonts\vga850.fon
+ReqBWin,Fonts\vga866.fon
+ReqBWin,Fonts\vga936.fon
+ReqBWin,Fonts\vgafix.fon
+ReqBWin,Fonts\vgafixr.fon
+ReqBWin,Fonts\vgaoem.fon
+ReqBWin,Fonts\vgasys.fon
+ReqBWin,Fonts\vgasysr.fon
+//InstallCopy,Windows\Fonts\vrinda.ttf
+// zh-cn
+If,%DistLang%,Equal,zh-CN,If,ExistFile,%InstallSRC%\Windows\Fonts\msyh.ttc,FileCopy,%InstallSRC%\Windows\Fonts\msyh.ttc,%target_win%\Fonts\msyh.ttc
+If,%DistLang%,Equal,zh-CN,If,ExistFile,%InstallSRC%\Windows\Fonts\simsun.ttc,FileCopy,%InstallSRC%\Windows\Fonts\simsun.ttc,%target_win%\Fonts\simsun.ttc
+
+[FileCopySmallFull]
+Run,%ScriptFile%,FileCopyFull
+//-- SideBySide
+Echo,"Removes the Full Side By Side Files..."
+DirDelete,%tw%\winsxs
+If,ExistDir,%tw%\winsxs,Echo,"%tw%\winsxs could not be deleted!"
+Echo,"Processing standard file copy - Side By Side Files..."
+Run,%ScriptFile%,SideBySide
+//-
+Echo,"Removes Full resource specific Languages folders..."
+Run,%scriptfile%,RemovesFullMuiDir,%t32%
+If,ExistDir,%tw%\SysWOW64,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\SysWOW64
+If,ExistDir,%tw%\Boot\EFI,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\Boot\EFI
+If,ExistDir,%tw%\Boot\PCAT,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\Boot\PCAT
+If,ExistDir,%tw%\Boot\PXE,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\Boot\PXE
+
+[FileCopyFull]
+//-- Boot Files
+Echo,"Processing Full file copy - Processing copy Boot Files..."
+FileCopy,%SourceDir%\bootmgr,%TargetDir%\BOOTMGR
+DirCopy,%SourceDir%\Boot,%TargetDir%
+If,ExistFile,%bw%\Boot\PXE\%DistLang%\bootmgr.exe.mui,FileCopy,%bw%\Boot\PXE\%DistLang%\bootmgr.exe.mui,%targetdir%\Boot\%DistLang%
+Else,If,ExistFile,%bw%\Boot\PXE\en-US\bootmgr.exe.mui,FileCopy,%bw%\Boot\PXE\en-US\bootmgr.exe.mui,%targetdir%\Boot\en-US
+//-
+// UEFI only for x64 build
+If,%SourceArch%,Equal,x64,Begin
+FileCopy,%SourceDir%\bootmgr.efi,%TargetDir%
+DirCopy,%SourceDir%\efi,%TargetDir%
+// Copy the \efi\microsoft\boot directory up 1 level – to \efi\boot and copy bootmgfw.efi from Windows\Boot\EFI to \efi\boot then rename it bootx64.efi.
+// Attention mkisofs is case sensitive
+If,Not,ExistDir,%targetdir%\efi\boot,DirMake,%targetdir%\efi\boot
+DirCopy,%TargetDir%\efi\microsoft\boot,%TargetDir%\efi
+FileCopy,%bw%\Boot\EFI\bootmgfw.efi,%TargetDir%\efi\boot\bootx64.efi
+End
+//-- File Copy FULL
+Echo,"Processing Full file copy...This will take several minutes, be patient..."
+If,ExistFile,%bw%\regedit.exe,FileCopy,%BootSRC%\*,%TargetDir%
+//  Remove "Sources" folder if Recovery Environment not selected
+If,%RecTools_CheckBox%,Equal,False,DirDelete,%targetdir%\sources
+//-
+If,ExistFile,%Tools%\%SourceArch%\wofadk.sys,FileCopy,%Tools%\%SourceArch%\wofadk.sys,%t32%\Drivers
+//-
+//-- Install.wim System32 Files
+Echo,"Processing Full file copy - install.wim System32 File..."
+ReqSys32,shdocvw.dll
+ReqSys32,shellstyle.dll
+If,ExistFile,%i32%\shfolder.dll,FileCopy,%i32%\shfolder.dll,%t32%
+ReqSys32,Shwebsvc.dll
+ReqSys32,ExplorerFrame.dll
+ReqSys32,duser.dll
+ReqSys32,hotplug.dll
+ReqSys32,oledlg.dll
+ReqSys32,mscms.dll
+If,ExistFile,%i32%\stdole2.tlb,FileCopy,%i32%\stdole2.tlb,%t32%
+If,ExistFile,%i32%\stdole32.tlb,FileCopy,%i32%\stdole32.tlb,%t32%
+// added by - rpaz needed to allow tray icon control (Hide/show/notifications)
+ReqSys32,taskbarcpl.dll
+If,ExistFile,%i32%\lz32.dll,FileCopy,%i32%\lz32.dll,%t32%
+//crtdll.dll (no x64 version and already in wow64 script for x64 builds)
+If,%SourceArch%,Equal,x86,Require_FileQ,crtdll.dll
+ReqSys32,w32time.dll
+ReqSys32,stobject.dll
+ReqSys32,batmeter.dll
+ReqSys32,fontext.dll
+ReqSys32,fontview.exe
+ReqSys32,fsutil.exe
+If,ExistFile,%i32%\vmstorfltres.dll,FileCopy,%i32%\vmstorfltres.dll,%t32%
+// Taking Ownership (Appinfo and ProfSvc services)
+ReqSys32,appinfo.dll
+ReqSys32,objsel.dll
+ReqSys32,profsvc.dll
+ReqSys32,provsvc.dll
+
+[FileCopyStandard]
+//-- Language pack (mui)
+Echo,"Processing standard file copy - Processing copy Language pack..."
+If,%MuiFiles_CheckBox%,Equal,True,Run,%ScriptFile%,LanPack
+Else,Run,%ScriptFile%,LanPackStandard
+If,Not,%DistLang%,Equal,en-US,Run,%ScriptFile%,LanPackUS
+//-
+If,ExistDir,%bw%\%DistLang%,DirCopy,%bw%\%DistLang%,%tw%
+If,Not,%DistLang%,Equal,en-US,If,ExistDir,%bw%\en-US,DirCopy,%bw%\en-US,%tw%
+//-- Boot Files
+Echo,"Processing standard file copy - Boot Files..."
+FileCopy,%SourceDir%\bootmgr,%TargetDir%\BOOTMGR
+DirCopy,%SourceDir%\boot,%TargetDir%
+If,ExistFile,%bw%\Boot\PXE\%DistLang%\bootmgr.exe.mui,FileCopy,%bw%\Boot\PXE\%DistLang%\bootmgr.exe.mui,%targetdir%\Boot\%DistLang%
+Else,If,ExistFile,%bw%\Boot\PXE\en-US\bootmgr.exe.mui,FileCopy,%bw%\Boot\PXE\en-US\bootmgr.exe.mui,%targetdir%\Boot\en-US
+//DirCopy,%b32%\Boot,%t32%
+FileCopy,%b32%\boot\winload.*,%t32%\boot
+If,ExistFile,%b32%\Boot\%DistLang%\winload.exe.mui,FileCopy,%b32%\Boot\%DistLang%\winload.*,%t32%\Boot\%DistLang%
+Else,If,ExistFile,%b32%\Boot\en-US\winload.exe.mui,FileCopy,%b32%\Boot\en-US\winload.*,%t32%\Boot\en-US
+//--
+// UEFI only for x64 build on Win7
+If,%SourceArch%,Equal,x64,Begin
+FileCopy,%SourceDir%\bootmgr.efi,%TargetDir%
+DirCopy,%SourceDir%\efi,%TargetDir%
+// Copy the \efi\microsoft\boot directory up 1 level – to \efi\boot and copy bootmgfw.efi from Windows\Boot\EFI to \efi\boot then rename it bootx64.efi.
+DirCopy,%TargetDir%\efi\microsoft\boot,%TargetDir%\efi
+FileCopy,%bw%\Boot\EFI\bootmgfw.efi,%TargetDir%\efi\boot\bootx64.efi
+If,Not,ExistDir,%tw%\Boot\EFI,DirMake,%tw%\Boot\EFI
+FileCopy,%bw%\Boot\EFI\*,%tw%\Boot\EFI,NOREC
+If,ExistDir,%tw%\Boot\EFI\%DistLang%,DirCopy,%bw%\Boot\EFI\%DistLang%,%tw%\Boot\EFI
+Else,DirCopy,%bw%\Boot\EFI\en-US,%tw%\Boot\EFI
+End
+//-- copy the root folder Files
+Echo,"Processing standard file copy - Root folder Files..."
+DirCopy,"%BootSRC%\Program Files",%TargetDir%
+//DirCopy,%BootSRC%\Sources,%TargetDir% (in RecTools section - Recovery Environment)
+DirCopy,%BootSRC%\users,%TargetDir%
+DirCopy,%BootSRC%\ProgramData,%TargetDir%
+//DirCopy,%bw%\Boot\fonts,%tw%\Boot (in AddFont section)
+//-- Recovery
+If,ExistDir,%b32%\Recovery,DirCopy,%b32%\Recovery,%t32%
+//-- Registry Files
+Echo,"Processing standard file copy...Registry Files..."
+//DirCopy,%b32%\config\systemprofile,%t32%\config
+FileCopy,%b32%\config\components,%t32%\config
+FileCopy,%b32%\config\Default,%t32%\config
+FileCopy,%b32%\config\sam,%t32%\config
+FileCopy,%b32%\config\Security,%t32%\config
+FileCopy,%b32%\config\software,%t32%\config
+FileCopy,%b32%\config\system,%t32%\config
+IniWrite,%projectdir%\script.project,IniVariables,SoftwareHive,Boot.wim
+IniWrite,%projectdir%\script.project,IniVariables,DriversHive,Boot.wim
+//-- Driver Files
+Echo,"Processing standard file copy - Driver Files..."
+DirCopy,%bw%\inf,%tw%
+DirCopy,%b32%\driverstore,%t32%
+DirCopy,%b32%\drivers,%t32%
+//-- WMI Files
+DirCopy,%b32%\wbem,%t32%
+Echo,"Processing standard file copy - Side By Side Files..."
+//-- Servicing (DISM /PEIMG)
+DirCopy,%bw%\servicing,%tw%
+If,ExistDir,%b32%\Dism,DirCopy,%b32%\Dism,%t32%
+DirCopy,%b32%\SMI,%t32%
+//-
+If,ExistDir,%bw%\Globalization,DirCopy,%bw%\Globalization,%tw%
+//-- SideBySide
+Echo,"Processing standard file copy - Side By Side Files..."
+Run,%ScriptFile%,SideBySide
+//-
+//-- SysWOW64 Boot Files
+If,ExistDir,%bw%\SysWOW64,Begin
+Echo,"Processing standard file copy - SysWOW64 Files..."
+DirCopy,%bw%\SysWOW64,%tw%
+//- Removes unnecessary Languages folders except fallback en-US
+If,ExistDir,%tw%\SysWOW64,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\SysWOW64
+End
+//-
+If,ExistFile,%Tools%\%SourceArch%\wofadk.sys,FileCopy,%Tools%\%SourceArch%\wofadk.sys,%t32%\Drivers
+//-
+//-- System32 Files
+Echo,"Processing standard file copy - System32 Files...This will take several minutes, be patient..."
+FileCopy,%b32%\*.dat,%t32%,NoRec
+FileCopy,%bw%\*.exe,%tw%,NoRec
+FileCopy,%b32%\*.exe,%t32%,NoRec
+FileCopy,%bw%\*.ini,%tw%,NoRec
+FileCopy,%bw%\WindowsShell.Manifest,%tw%
+FileCopy,%b32%\*.ocx,%t32%,NoRec
+FileCopy,%b32%\*.com,%t32%,NoRec
+//FileCopy,%b32%\*.bmp,%t32%,NoRec
+FileCopy,%b32%\*.cmd,%t32%,NoRec
+If,ExistFile,%b32%\aclui.dll,FileCopy,%b32%\aclui.dll,%t32%
+If,ExistFile,%b32%\advapi32.dll,FileCopy,%b32%\advapi32.dll,%t32%
+If,ExistFile,%b32%\advpack.dll,FileCopy,%b32%\advpack.dll,%t32%
+If,ExistFile,%b32%\api-ms-*.dll,FileCopy,%b32%\api-ms-*.dll,%t32%
+If,ExistFile,%b32%\apisetschema.dll,FileCopy,%b32%\apisetschema.dll,%t32%
+If,ExistFile,%b32%\atl.dll,FileCopy,%b32%\atl.dll,%t32%
+If,ExistFile,%b32%\atmlib.dll,FileCopy,%b32%\atmlib.dll,%t32%
+If,ExistFile,%b32%\authui.dll,FileCopy,%b32%\authui.dll,%t32%
+If,ExistFile,%b32%\authz.dll,FileCopy,%b32%\authz.dll,%t32%
+If,ExistFile,%b32%\AuxiliaryDisplayClassInstaller.dll,FileCopy,%b32%\AuxiliaryDisplayClassInstaller.dll,%t32%
+If,ExistFile,%b32%\basesrv.dll,FileCopy,%b32%\basesrv.dll,%t32%
+//If,ExistFile,%b32%\bcdedit.exe,FileCopy,%b32%\bcdedit.exe,%t32%
+ReqSys32,bcdedit.exe
+If,ExistFile,%b32%\bcdprov.dll,FileCopy,%b32%\bcdprov.dll,%t32%
+If,ExistFile,%b32%\bcdsrv.dll,FileCopy,%b32%\bcdsrv.dll,%t32%
+If,ExistFile,%b32%\bcrypt.dll,FileCopy,%b32%\bcrypt.dll,%t32%
+If,ExistFile,%b32%\bcryptprimitives.dll,FileCopy,%b32%\bcryptprimitives.dll,%t32%
+If,ExistFile,%b32%\bderepair.dll,FileCopy,%b32%\bderepair.dll,%t32%
+If,ExistFile,%b32%\bdeui.dll,FileCopy,%b32%\bdeui.dll,%t32%
+If,ExistFile,%b32%\BFE.DLL,FileCopy,%b32%\BFE.DLL,%t32%
+If,ExistFile,%b32%\bootres.dll,FileCopy,%b32%\bootres.dll,%t32%
+If,ExistFile,%b32%\bootstr.dll,FileCopy,%b32%\bootstr.dll,%t32%
+If,ExistFile,%b32%\BOOTVID.DLL,FileCopy,%b32%\BOOTVID.DLL,%t32%
+If,ExistFile,%b32%\browcli.dll,FileCopy,%b32%\browcli.dll,%t32%
+If,ExistFile,%b32%\C_1251.NLS,FileCopy,%b32%\C_1251.NLS,%t32%
+If,ExistFile,%b32%\C_1252.NLS,FileCopy,%b32%\C_1252.NLS,%t32%
+If,ExistFile,%b32%\C_437.NLS,FileCopy,%b32%\C_437.NLS,%t32%
+If,ExistFile,%b32%\C_850.NLS,FileCopy,%b32%\C_850.NLS,%t32%
+If,ExistFile,%b32%\cabinet.dll,FileCopy,%b32%\cabinet.dll,%t32%
+If,ExistFile,%b32%\certcli.dll,FileCopy,%b32%\certcli.dll,%t32%
+If,ExistFile,%b32%\cfgmgr32.dll,FileCopy,%b32%\cfgmgr32.dll,%t32%
+If,ExistFile,%b32%\chkwudrv.dll,FileCopy,%b32%\chkwudrv.dll,%t32%
+If,ExistFile,%b32%\ci.dll,FileCopy,%b32%\ci.dll,%t32%
+If,ExistFile,%b32%\clb.dll,FileCopy,%b32%\clb.dll,%t32%
+If,ExistFile,%b32%\clfs.sys,FileCopy,%b32%\clfs.sys,%t32%
+If,ExistFile,%b32%\clusapi.dll,FileCopy,%b32%\clusapi.dll,%t32%
+If,ExistFile,%b32%\cmd.exe,FileCopy,%b32%\cmd.exe,%t32%
+If,ExistFile,%b32%\cmipnpinstall.dll,FileCopy,%b32%\cmipnpinstall.dll,%t32%
+If,ExistFile,%b32%\cngaudit.dll,FileCopy,%b32%\cngaudit.dll,%t32%
+If,ExistFile,%b32%\comcat.dll,FileCopy,%b32%\comcat.dll,%t32%
+If,ExistFile,%b32%\comdlg32.dll,FileCopy,%b32%\comdlg32.dll,%t32%
+If,ExistFile,%b32%\comres.dll,FileCopy,%b32%\comres.dll,%t32%
+If,ExistFile,%b32%\console.dll,FileCopy,%b32%\console.dll,%t32%
+If,ExistFile,%b32%\cnvfat.dll,FileCopy,%b32%\cnvfat.dll,%t32%
+If,ExistFile,%b32%\credui.dll,FileCopy,%b32%\credui.dll,%t32%
+If,ExistFile,%b32%\crypt32.dll,FileCopy,%b32%\crypt32.dll,%t32%
+If,ExistFile,%b32%\cryptbase.dll,FileCopy,%b32%\cryptbase.dll,%t32%
+If,ExistFile,%b32%\cryptdlg.dll,FileCopy,%b32%\cryptdlg.dll,%t32%
+If,ExistFile,%b32%\cryptdll.dll,FileCopy,%b32%\cryptdll.dll,%t32%
+If,ExistFile,%b32%\cryptext.dll,FileCopy,%b32%\cryptext.dll,%t32%
+If,ExistFile,%b32%\cryptnet.dll,FileCopy,%b32%\cryptnet.dll,%t32%
+If,ExistFile,%b32%\cryptsp.dll,FileCopy,%b32%\cryptsp.dll,%t32%
+If,ExistFile,%b32%\cryptsvc.dll,FileCopy,%b32%\cryptsvc.dll,%t32%
+If,ExistFile,%b32%\cryptui.dll,FileCopy,%b32%\cryptui.dll,%t32%
+If,ExistFile,%b32%\cryptxml.dll,FileCopy,%b32%\cryptxml.dll,%t32%
+If,ExistFile,%b32%\csrsrv.dll,FileCopy,%b32%\csrsrv.dll,%t32%
+If,ExistFile,%b32%\csrss.exe,FileCopy,%b32%\csrss.exe,%t32%
+If,ExistFile,%b32%\davhlpr.dll,FileCopy,%b32%\davhlpr.dll,%t32%
+If,ExistFile,%b32%\dbgeng.dll,FileCopy,%b32%\dbgeng.dll,%t32%
+If,ExistFile,%b32%\dbghelp.dll,FileCopy,%b32%\dbghelp.dll,%t32%
+If,ExistFile,%b32%\defragproxy.dll,FileCopy,%b32%\defragproxy.dll,%t32%
+If,ExistFile,%b32%\defragsvc.dll,FileCopy,%b32%\defragsvc.dll,%t32%
+If,ExistFile,%b32%\devobj.dll,FileCopy,%b32%\devobj.dll,%t32%
+If,ExistFile,%b32%\devrtl.dll,FileCopy,%b32%\devrtl.dll,%t32%
+If,ExistFile,%b32%\dfscli.dll,FileCopy,%b32%\dfscli.dll,%t32%
+If,ExistFile,%b32%\dhcpcmonitor.dll,FileCopy,%b32%\dhcpcmonitor.dll,%t32%
+If,ExistFile,%b32%\dhcpcore.dll,FileCopy,%b32%\dhcpcore.dll,%t32%
+If,ExistFile,%b32%\dhcpcore6.dll,FileCopy,%b32%\dhcpcore6.dll,%t32%
+If,ExistFile,%b32%\dhcpcsvc.dll,FileCopy,%b32%\dhcpcsvc.dll,%t32%
+If,ExistFile,%b32%\dhcpcsvc6.dll,FileCopy,%b32%\dhcpcsvc6.dll,%t32%
+If,ExistFile,%b32%\dhcpqec.dll,FileCopy,%b32%\dhcpqec.dll,%t32%
+If,ExistFile,%b32%\dnsapi.dll,FileCopy,%b32%\dnsapi.dll,%t32%
+If,ExistFile,%b32%\dnsrslvr.dll,FileCopy,%b32%\dnsrslvr.dll,%t32%
+If,ExistFile,%b32%\drvinst.exe,FileCopy,%b32%\drvinst.exe,%t32%
+If,ExistFile,%b32%\drvstore.dll,FileCopy,%b32%\drvstore.dll,%t32%
+If,ExistFile,%b32%\dsrole.dll,FileCopy,%b32%\dsrole.dll,%t32%
+If,ExistFile,%b32%\dui70.dll,FileCopy,%b32%\dui70.dll,%t32%
+//If,ExistFile,%b32%\dwmapi.dll,FileCopy,%b32%\dwmapi.dll,%t32%
+ReqSys32,dwmapi.dll
+If,ExistFile,%b32%\eapsvc.dll,FileCopy,%b32%\eapsvc.dll,%t32%
+If,ExistFile,%b32%\efssvc.dll,FileCopy,%b32%\efssvc.dll,%t32%
+If,ExistFile,%b32%\efsutil.dll,FileCopy,%b32%\efsutil.dll,%t32%
+If,ExistFile,%b32%\esent.dll,FileCopy,%b32%\esent.dll,%t32%
+If,ExistFile,%b32%\feclient.dll,FileCopy,%b32%\feclient.dll,%t32%
+If,ExistFile,%b32%\FirewallAPI.dll,FileCopy,%b32%\FirewallAPI.dll,%t32%
+If,ExistFile,%b32%\fltLib.dll,FileCopy,%b32%\fltLib.dll,%t32%
+If,ExistFile,%b32%\fmifs.dll,FileCopy,%b32%\fmifs.dll,%t32%
+If,ExistFile,%b32%\fms.dll,FileCopy,%b32%\fms.dll,%t32%
+If,ExistFile,%b32%\framebuf.dll,FileCopy,%b32%\framebuf.dll,%t32%
+If,ExistFile,%b32%\framedynos.dll,FileCopy,%b32%\framedynos.dll,%t32%
+If,ExistFile,%b32%\FWPUCLNT.DLL,FileCopy,%b32%\FWPUCLNT.DLL,%t32%
+If,ExistFile,%b32%\gdi32.dll,FileCopy,%b32%\gdi32.dll,%t32%
+If,ExistFile,%b32%\gpapi.dll,FileCopy,%b32%\gpapi.dll,%t32%
+If,ExistFile,%b32%\gpsvc.dll,FileCopy,%b32%\gpsvc.dll,%t32%
+//If,ExistFile,%b32%\halacpi.dll,FileCopy,%b32%\halacpi.dll,%t32%
+//If,ExistFile,%b32%\halmacpi.dll,FileCopy,%b32%\halmacpi.dll,%t32%
+FileCopy,%b32%\hal*.dll,%t32%,NoRec
+If,ExistFile,%b32%\iertutil.dll,FileCopy,%b32%\iertutil.dll,%t32%
+If,ExistFile,%b32%\ifsutil.dll,FileCopy,%b32%\ifsutil.dll,%t32%
+If,ExistFile,%b32%\ifsutilx.dll,FileCopy,%b32%\ifsutilx.dll,%t32%
+If,ExistFile,%b32%\imagehlp.dll,FileCopy,%b32%\imagehlp.dll,%t32%
+If,ExistFile,%b32%\imageres.dll,FileCopy,%b32%\imageres.dll,%t32%
+If,ExistFile,%b32%\imagesp1.dll,FileCopy,%b32%\imagesp1.dll,%t32%
+If,ExistFile,%b32%\imapi.dll,FileCopy,%b32%\imapi.dll,%t32%
+If,ExistFile,%b32%\imapi2.dll,FileCopy,%b32%\imapi2.dll,%t32%
+If,ExistFile,%b32%\imapi2fs.dll,FileCopy,%b32%\imapi2fs.dll,%t32%
+If,ExistFile,%b32%\imm32.dll,FileCopy,%b32%\imm32.dll,%t32%
+If,ExistFile,%b32%\input.dll,FileCopy,%b32%\input.dll,%t32%
+If,ExistFile,%b32%\IPHLPAPI.DLL,FileCopy,%b32%\IPHLPAPI.DLL,%t32%
+If,ExistFile,%b32%\IPSECSVC.dll,FileCopy,%b32%\IPSECSVC.dll,%t32%
+If,ExistFile,%b32%\KBDUS.DLL,FileCopy,%b32%\KBDUS.DLL,%t32%
+If,ExistFile,%b32%\kdcom.dll,FileCopy,%b32%\kdcom.dll,%t32%
+If,ExistFile,%b32%\kernel32.dll,FileCopy,%b32%\kernel32.dll,%t32%
+If,ExistFile,%b32%\KernelBase.dll,FileCopy,%b32%\KernelBase.dll,%t32%
+If,ExistFile,%b32%\ktmw32.dll,FileCopy,%b32%\ktmw32.dll,%t32%
+If,ExistFile,%b32%\l_intl.nls,FileCopy,%b32%\l_intl.nls,%t32%
+If,ExistFile,%b32%\linkinfo.dll,FileCopy,%b32%\linkinfo.dll,%t32%
+If,ExistFile,%b32%\lmhsvc.dll,FileCopy,%b32%\lmhsvc.dll,%t32%
+If,ExistFile,%b32%\locale.nls,FileCopy,%b32%\locale.nls,%t32%
+If,ExistFile,%b32%\logoncli.dll,FileCopy,%b32%\logoncli.dll,%t32%
+If,ExistFile,%b32%\lpk.dll,FileCopy,%b32%\lpk.dll,%t32%
+If,ExistFile,%b32%\lsasrv.dll,FileCopy,%b32%\lsasrv.dll,%t32%
+If,ExistFile,%b32%\lsass.exe,FileCopy,%b32%\lsass.exe,%t32%
+If,ExistFile,%b32%\lsm.exe,FileCopy,%b32%\lsm.exe,%t32%
+If,ExistFile,%b32%\montr_ci.dll,FileCopy,%b32%\montr_ci.dll,%t32%
+If,ExistFile,%b32%\mpr.dll,FileCopy,%b32%\mpr.dll,%t32%
+If,ExistFile,%b32%\mprapi.dll,FileCopy,%b32%\mprapi.dll,%t32%
+If,ExistFile,%b32%\mprmsg.dll,FileCopy,%b32%\mprmsg.dll,%t32%
+If,ExistFile,%b32%\mpssvc.dll,FileCopy,%b32%\mpssvc.dll,%t32%
+If,ExistFile,%b32%\msasn1.dll,FileCopy,%b32%\msasn1.dll,%t32%
+If,ExistFile,%b32%\msctf.dll,FileCopy,%b32%\msctf.dll,%t32%
+If,ExistFile,%b32%\msftedit.dll,FileCopy,%b32%\msftedit.dll,%t32%
+If,ExistFile,%b32%\msimg32.dll,FileCopy,%b32%\msimg32.dll,%t32%
+If,ExistFile,%b32%\msls31.dll,FileCopy,%b32%\msls31.dll,%t32%
+If,ExistFile,%b32%\msprivs.dll,FileCopy,%b32%\msprivs.dll,%t32%
+If,ExistFile,%b32%\mssign32.dll,FileCopy,%b32%\mssign32.dll,%t32%
+If,ExistFile,%b32%\msv1_0.dll,FileCopy,%b32%\msv1_0.dll,%t32%
+If,ExistFile,%b32%\msvcirt.dll,FileCopy,%b32%\msvcirt.dll,%t32%
+If,ExistFile,%b32%\msvcp60.dll,FileCopy,%b32%\msvcp60.dll,%t32%
+If,ExistFile,%b32%\msvcrt.dll,FileCopy,%b32%\msvcrt.dll,%t32%
+If,ExistFile,%b32%\msvcrt40.dll,FileCopy,%b32%\msvcrt40.dll,%t32%
+If,ExistFile,%b32%\mswsock.dll,FileCopy,%b32%\mswsock.dll,%t32%
+If,ExistFile,%b32%\nci.dll,FileCopy,%b32%\nci.dll,%t32%
+If,ExistFile,%b32%\ncobjapi.dll,FileCopy,%b32%\ncobjapi.dll,%t32%
+If,ExistFile,%b32%\ncrypt.dll,FileCopy,%b32%\ncrypt.dll,%t32%
+If,ExistFile,%b32%\net*.dll,FileCopy,%b32%\net*.dll,%t32%
+If,ExistFile,%b32%\netapi32.dll,FileCopy,%b32%\netapi32.dll,%t32%
+If,ExistFile,%b32%\netutils.dll,FileCopy,%b32%\netutils.dll,%t32%
+If,ExistFile,%b32%\newdev.dll,FileCopy,%b32%\newdev.dll,%t32%
+If,ExistFile,%b32%\nlaapi.dll,FileCopy,%b32%\nlaapi.dll,%t32%
+If,ExistFile,%b32%\nlasvc.dll,FileCopy,%b32%\nlasvc.dll,%t32%
+If,ExistFile,%b32%\normaliz.dll,FileCopy,%b32%\normaliz.dll,%t32%
+If,ExistFile,%b32%\nrpsrv.dll,FileCopy,%b32%\nrpsrv.dll,%t32%
+If,ExistFile,%b32%\nsi.dll,FileCopy,%b32%\nsi.dll,%t32%
+If,ExistFile,%b32%\nsisvc.dll,FileCopy,%b32%\nsisvc.dll,%t32%
+If,ExistFile,%b32%\ntdll.dll,FileCopy,%b32%\ntdll.dll,%t32%
+If,ExistFile,%b32%\ntdsapi.dll,FileCopy,%b32%\ntdsapi.dll,%t32%
+If,ExistFile,%b32%\ntkrnlpa.exe,FileCopy,%b32%\ntkrnlpa.exe,%t32%
+If,ExistFile,%b32%\ntlanman.dll,FileCopy,%b32%\ntlanman.dll,%t32%
+If,ExistFile,%b32%\ntmarta.dll,FileCopy,%b32%\ntmarta.dll,%t32%
+If,ExistFile,%b32%\ntoskrnl.exe,FileCopy,%b32%\ntoskrnl.exe,%t32%
+If,ExistFile,%b32%\odbc*.dll,FileCopy,%b32%\odbc*.dll,%t32%
+If,ExistFile,%b32%\ole32.dll,FileCopy,%b32%\ole32.dll,%t32%
+If,ExistFile,%b32%\oleacc.dll,FileCopy,%b32%\oleacc.dll,%t32%
+If,ExistFile,%b32%\oleaccrc.dll,FileCopy,%b32%\oleaccrc.dll,%t32%
+If,ExistFile,%b32%\oleaut32.dll,FileCopy,%b32%\oleaut32.dll,%t32%
+If,ExistFile,%b32%\oleres.dll,FileCopy,%b32%\oleres.dll,%t32%
+If,ExistFile,%b32%\osuninst.dll,FileCopy,%b32%\osuninst.dll,%t32%
+If,ExistFile,%b32%\pcwum.dll,FileCopy,%b32%\pcwum.dll,%t32%
+If,ExistFile,%b32%\pnpsetup.dll,FileCopy,%b32%\pnpsetup.dll,%t32%
+If,ExistFile,%b32%\pnpui.dll,FileCopy,%b32%\pnpui.dll,%t32%
+If,ExistFile,%b32%\powrprof.dll,FileCopy,%b32%\powrprof.dll,%t32%
+If,ExistFile,%b32%\printui.dll,FileCopy,%b32%\printui.dll,%t32%
+If,ExistFile,%b32%\procinst.dll,FileCopy,%b32%\procinst.dll,%t32%
+If,ExistFile,%b32%\profapi.dll,FileCopy,%b32%\profapi.dll,%t32%
+If,ExistFile,%i32%\propsys.dll,FileCopy,%i32%\propsys.dll,%t32%
+If,ExistFile,%b32%\provthrd.dll,FileCopy,%b32%\provthrd.dll,%t32%
+If,ExistFile,%b32%\psapi.dll,FileCopy,%b32%\psapi.dll,%t32%
+If,ExistFile,%b32%\PSHED.DLL,FileCopy,%b32%\PSHED.DLL,%t32%
+If,ExistFile,%b32%\QUTIL.DLL,FileCopy,%b32%\QUTIL.DLL,%t32%
+If,ExistFile,%b32%\rasadhlp.dll,FileCopy,%b32%\rasadhlp.dll,%t32%
+If,ExistFile,%b32%\rasapi32.dll,FileCopy,%b32%\rasapi32.dll,%t32%
+If,ExistFile,%b32%\rasauto.dll,FileCopy,%b32%\rasauto.dll,%t32%
+If,ExistFile,%b32%\rascfg.dll,FileCopy,%b32%\rascfg.dll,%t32%
+If,ExistFile,%b32%\raschap.dll,FileCopy,%b32%\raschap.dll,%t32%
+If,ExistFile,%b32%\rasctrs.dll,FileCopy,%b32%\rasctrs.dll,%t32%
+If,ExistFile,%b32%\rasdiag.dll,FileCopy,%b32%\rasdiag.dll,%t32%
+If,ExistFile,%b32%\rasdlg.dll,FileCopy,%b32%\rasdlg.dll,%t32%
+If,ExistFile,%b32%\rasman.dll,FileCopy,%b32%\rasman.dll,%t32%
+If,ExistFile,%b32%\rasmans.dll,FileCopy,%b32%\rasmans.dll,%t32%
+If,ExistFile,%b32%\rasmontr.dll,FileCopy,%b32%\rasmontr.dll,%t32%
+If,ExistFile,%b32%\rasmxs.dll,FileCopy,%b32%\rasmxs.dll,%t32%
+If,ExistFile,%b32%\rasppp.dll,FileCopy,%b32%\rasppp.dll,%t32%
+If,ExistFile,%b32%\rasser.dll,FileCopy,%b32%\rasser.dll,%t32%
+If,ExistFile,%b32%\rastapi.dll,FileCopy,%b32%\rastapi.dll,%t32%
+If,ExistFile,%b32%\rastls.dll,FileCopy,%b32%\rastls.dll,%t32%
+If,ExistFile,%b32%\ReAgent.dll,FileCopy,%b32%\ReAgent.dll,%t32%
+If,ExistFile,%b32%\regapi.dll,FileCopy,%b32%\regapi.dll,%t32%
+If,ExistFile,%b32%\resutils.dll,FileCopy,%b32%\resutils.dll,%t32%
+If,ExistFile,%b32%\riched20.dll,FileCopy,%b32%\riched20.dll,%t32%
+If,ExistFile,%b32%\riched32.dll,FileCopy,%b32%\riched32.dll,%t32%
+If,ExistFile,%b32%\rnr20.dll,FileCopy,%b32%\rnr20.dll,%t32%
+If,ExistFile,%b32%\RpcEpMap.dll,FileCopy,%b32%\RpcEpMap.dll,%t32%
+If,ExistFile,%b32%\rpcrt4.dll,FileCopy,%b32%\rpcrt4.dll,%t32%
+If,ExistFile,%b32%\RpcRtRemote.dll,FileCopy,%b32%\RpcRtRemote.dll,%t32%
+If,ExistFile,%b32%\rpcss.dll,FileCopy,%b32%\rpcss.dll,%t32%
+If,ExistFile,%b32%\rsaenh.dll,FileCopy,%b32%\rsaenh.dll,%t32%
+If,ExistFile,%b32%\rtutils.dll,FileCopy,%b32%\rtutils.dll,%t32%
+If,ExistFile,%b32%\sacsvr.dll,FileCopy,%b32%\sacsvr.dll,%t32%
+If,ExistFile,%b32%\samcli.dll,FileCopy,%b32%\samcli.dll,%t32%
+If,ExistFile,%b32%\samlib.dll,FileCopy,%b32%\samlib.dll,%t32%
+If,ExistFile,%b32%\samsrv.dll,FileCopy,%b32%\samsrv.dll,%t32%
+If,ExistFile,%b32%\scecli.dll,FileCopy,%b32%\scecli.dll,%t32%
+If,ExistFile,%b32%\scesrv.dll,FileCopy,%b32%\scesrv.dll,%t32%
+If,ExistFile,%b32%\scext.dll,FileCopy,%b32%\scext.dll,%t32%
+If,ExistFile,%b32%\schannel.dll,FileCopy,%b32%\schannel.dll,%t32%
+If,ExistFile,%b32%\schedcli.dll,FileCopy,%b32%\schedcli.dll,%t32%
+If,ExistFile,%b32%\scrobj.dll,FileCopy,%b32%\scrobj.dll,%t32%
+If,ExistFile,%b32%\scrrun.dll,FileCopy,%b32%\scrrun.dll,%t32%
+If,ExistFile,%b32%\sdhcinst.dll,FileCopy,%b32%\sdhcinst.dll,%t32%
+If,ExistFile,%b32%\sechost.dll,FileCopy,%b32%\sechost.dll,%t32%
+If,ExistFile,%b32%\secur32.dll,FileCopy,%b32%\secur32.dll,%t32%
+If,ExistFile,%b32%\security.dll,FileCopy,%b32%\security.dll,%t32%
+If,ExistFile,%b32%\SensApi.dll,FileCopy,%b32%\SensApi.dll,%t32%
+If,ExistFile,%b32%\services.exe,FileCopy,%b32%\services.exe,%t32%
+If,ExistFile,%b32%\setbcdlocale.dll,FileCopy,%b32%\setbcdlocale.dll,%t32%
+If,ExistFile,%b32%\setupapi.dll,FileCopy,%b32%\setupapi.dll,%t32%
+If,ExistFile,%b32%\sfc.dll,FileCopy,%b32%\sfc.dll,%t32%
+If,ExistFile,%b32%\sfc_os.dll,FileCopy,%b32%\sfc_os.dll,%t32%
+If,ExistFile,%b32%\shell32.dll,FileCopy,%b32%\shell32.dll,%t32%
+If,ExistFile,%b32%\shlwapi.dll,FileCopy,%b32%\shlwapi.dll,%t32%
+If,ExistFile,%b32%\SLC.dll,FileCopy,%b32%\SLC.dll,%t32%
+If,ExistFile,%b32%\SmiEngine.dll,FileCopy,%b32%\SmiEngine.dll,%t32%
+If,ExistFile,%b32%\smss.exe,FileCopy,%b32%\smss.exe,%t32%
+If,ExistFile,%b32%\snmpapi.dll,FileCopy,%b32%\snmpapi.dll,%t32%
+If,ExistFile,%b32%\spfileq.dll,FileCopy,%b32%\spfileq.dll,%t32%
+If,ExistFile,%b32%\SPInf.dll,FileCopy,%b32%\SPInf.dll,%t32%
+If,ExistFile,%b32%\spp.dll,FileCopy,%b32%\spp.dll,%t32%
+If,ExistFile,%b32%\sppc.dll,FileCopy,%b32%\sppc.dll,%t32%
+If,ExistFile,%b32%\srcore.dll,FileCopy,%b32%\srcore.dll,%t32%
+If,ExistFile,%b32%\srhelper.dll,FileCopy,%b32%\srhelper.dll,%t32%
+If,ExistFile,%b32%\srvcli.dll,FileCopy,%b32%\srvcli.dll,%t32%
+If,ExistFile,%b32%\sspicli.dll,FileCopy,%b32%\sspicli.dll,%t32%
+If,ExistFile,%b32%\sspisrv.dll,FileCopy,%b32%\sspisrv.dll,%t32%
+If,ExistFile,%b32%\SSShim.dll,FileCopy,%b32%\SSShim.dll,%t32%
+If,ExistFile,%b32%\sstpsvc.dll,FileCopy,%b32%\sstpsvc.dll,%t32%
+If,ExistFile,%b32%\Storprop.dll,FileCopy,%b32%\Storprop.dll,%t32%
+If,ExistFile,%b32%\streamci.dll,FileCopy,%b32%\streamci.dll,%t32%
+If,ExistFile,%b32%\svchost.exe,FileCopy,%b32%\svchost.exe,%t32%
+If,ExistFile,%b32%\swprv.dll,FileCopy,%b32%\swprv.dll,%t32%
+If,ExistFile,%b32%\sxproxy.dll,FileCopy,%b32%\sxproxy.dll,%t32%
+If,ExistFile,%b32%\sxs.dll,FileCopy,%b32%\sxs.dll,%t32%
+If,ExistFile,%b32%\sxshared.dll,FileCopy,%b32%\sxshared.dll,%t32%
+If,ExistFile,%b32%\sxssrv.dll,FileCopy,%b32%\sxssrv.dll,%t32%
+If,ExistFile,%b32%\sysclass.dll,FileCopy,%b32%\sysclass.dll,%t32%
+If,ExistFile,%b32%\sysntfy.dll,FileCopy,%b32%\sysntfy.dll,%t32%
+If,ExistFile,%b32%\syssetup.dll,FileCopy,%b32%\syssetup.dll,%t32%
+If,ExistFile,%b32%\tapi32.dll,FileCopy,%b32%\tapi32.dll,%t32%
+If,ExistFile,%b32%\taskmgr.exe,FileCopy,%b32%\taskmgr.exe,%t32%
+If,ExistFile,%b32%\tbs.dll,FileCopy,%b32%\tbs.dll,%t32%
+If,ExistFile,%b32%\tbssvc.dll,FileCopy,%b32%\tbssvc.dll,%t32%
+If,ExistFile,%b32%\tcpipcfg.dll,FileCopy,%b32%\tcpipcfg.dll,%t32%
+If,ExistFile,%b32%\tcpmib.dll,FileCopy,%b32%\tcpmib.dll,%t32%
+If,ExistFile,%b32%\tdh.dll,FileCopy,%b32%\tdh.dll,%t32%
+If,ExistFile,%b32%\tsddd.dll,FileCopy,%b32%\tsddd.dll,%t32%
+If,ExistFile,%b32%\ubpm.dll,FileCopy,%b32%\ubpm.dll,%t32%
+If,ExistFile,%b32%\uexfat.dll,FileCopy,%b32%\uexfat.dll,%t32%
+If,ExistFile,%b32%\ufat.dll,FileCopy,%b32%\ufat.dll,%t32%
+If,ExistFile,%b32%\ulib.dll,FileCopy,%b32%\ulib.dll,%t32%
+If,ExistFile,%b32%\umpnpmgr.dll,FileCopy,%b32%\umpnpmgr.dll,%t32%
+If,ExistFile,%b32%\unattend.dll,FileCopy,%b32%\unattend.dll,%t32%
+If,ExistFile,%b32%\untfs.dll,FileCopy,%b32%\untfs.dll,%t32%
+If,ExistFile,%b32%\urlmon.dll,FileCopy,%b32%\urlmon.dll,%t32%
+If,ExistFile,%b32%\user32.dll,FileCopy,%b32%\user32.dll,%t32%
+If,ExistFile,%b32%\userenv.dll,FileCopy,%b32%\userenv.dll,%t32%
+If,ExistFile,%b32%\usp10.dll,FileCopy,%b32%\usp10.dll,%t32%
+If,ExistFile,%b32%\uudf.dll,FileCopy,%b32%\uudf.dll,%t32%
+If,ExistFile,%b32%\uxtheme.dll,FileCopy,%b32%\uxtheme.dll,%t32%
+If,ExistFile,%b32%\vdmdbg.dll,FileCopy,%b32%\vdmdbg.dll,%t32%
+If,ExistFile,%b32%\vds_ps.dll,FileCopy,%b32%\vds_ps.dll,%t32%
+If,ExistFile,%b32%\vdsbas.dll,FileCopy,%b32%\vdsbas.dll,%t32%
+If,ExistFile,%b32%\vdsdyn.dll,FileCopy,%b32%\vdsdyn.dll,%t32%
+If,ExistFile,%b32%\vdsutil.dll,FileCopy,%b32%\vdsutil.dll,%t32%
+If,ExistFile,%b32%\vdsvd.dll,FileCopy,%b32%\vdsvd.dll,%t32%
+If,ExistFile,%b32%\version.dll,FileCopy,%b32%\version.dll,%t32%
+If,ExistFile,%b32%\virtdisk.dll,FileCopy,%b32%\virtdisk.dll,%t32%
+If,ExistFile,%b32%\vpnikeapi.dll,FileCopy,%b32%\vpnikeapi.dll,%t32%
+If,ExistFile,%b32%\vss*.dll,FileCopy,%b32%\vss*.dll,%t32%
+If,ExistFile,%b32%\vsstrace.dll,FileCopy,%b32%\vsstrace.dll,%t32%
+If,ExistFile,%b32%\eventcls.dll,FileCopy,%b32%\eventcls.dll,%t32%
+If,ExistFile,%b32%\w32topl.dll,FileCopy,%b32%\w32topl.dll,%t32%
+If,ExistFile,%b32%\wbemcomn.dll,FileCopy,%b32%\wbemcomn.dll,%t32%
+If,ExistFile,%b32%\wdigest.dll,FileCopy,%b32%\wdigest.dll,%t32%
+If,ExistFile,%b32%\wdscore.dll,FileCopy,%b32%\wdscore.dll,%t32%
+If,ExistFile,%b32%\webio.dll,FileCopy,%b32%\webio.dll,%t32%
+If,ExistFile,%b32%\webservices.dll,FileCopy,%b32%\webservices.dll,%t32%
+If,ExistFile,%b32%\wer.dll,FileCopy,%b32%\wer.dll,%t32%
+If,ExistFile,%b32%\werui.dll,FileCopy,%b32%\werui.dll,%t32%
+If,ExistFile,%b32%\wevtapi.dll,FileCopy,%b32%\wevtapi.dll,%t32%
+If,ExistFile,%b32%\wevtsvc.dll,FileCopy,%b32%\wevtsvc.dll,%t32%
+If,ExistFile,%b32%\wimgapi.dll,FileCopy,%b32%\wimgapi.dll,%t32%
+If,ExistFile,%b32%\win32k.sys,FileCopy,%b32%\win32k.sys,%t32%
+If,ExistFile,%b32%\winbrand.dll,FileCopy,%b32%\winbrand.dll,%t32%
+If,ExistFile,%b32%\winhttp.dll,FileCopy,%b32%\winhttp.dll,%t32%
+If,ExistFile,%i32%\wininet.dll,FileCopy,%i32%\wininet.dll,%t32%
+If,ExistFile,%b32%\wininit.exe,FileCopy,%b32%\wininit.exe,%t32%
+If,ExistFile,%b32%\winipsec.dll,FileCopy,%b32%\winipsec.dll,%t32%
+If,ExistFile,%b32%\winlogon.exe,FileCopy,%b32%\winlogon.exe,%t32%
+If,ExistFile,%b32%\winmm.dll,FileCopy,%b32%\winmm.dll,%t32%
+If,ExistFile,%b32%\winnsi.dll,FileCopy,%b32%\winnsi.dll,%t32%
+If,ExistFile,%b32%\winpeshl.exe,FileCopy,%b32%\winpeshl.exe,%t32%
+If,ExistFile,%b32%\winspool.drv,FileCopy,%b32%\winspool.drv,%t32%
+If,ExistFile,%b32%\winsrv.dll,FileCopy,%b32%\winsrv.dll,%t32%
+If,ExistFile,%b32%\winsta.dll,FileCopy,%b32%\winsta.dll,%t32%
+If,ExistFile,%b32%\wintrust.dll,FileCopy,%b32%\wintrust.dll,%t32%
+If,ExistFile,%b32%\wkscli.dll,FileCopy,%b32%\wkscli.dll,%t32%
+If,ExistFile,%b32%\wkssvc.dll,FileCopy,%b32%\wkssvc.dll,%t32%
+If,ExistFile,%b32%\Wldap32.dll,FileCopy,%b32%\Wldap32.dll,%t32%
+If,ExistFile,%b32%\WmiMgmt.msc,FileCopy,%b32%\WmiMgmt.msc,%t32%
+If,ExistFile,%b32%\wmsgapi.dll,FileCopy,%b32%\wmsgapi.dll,%t32%
+If,ExistFile,%b32%\wpeinit.exe,FileCopy,%b32%\wpeinit.exe,%t32%
+If,ExistFile,%b32%\wpeutil.dll,FileCopy,%b32%\wpeutil.dll,%t32%
+If,ExistFile,%b32%\wpeutil.exe,FileCopy,%b32%\wpeutil.exe,%t32%
+If,ExistFile,%b32%\ws2_32.dll,FileCopy,%b32%\ws2_32.dll,%t32%
+If,ExistFile,%b32%\ws2help.dll,FileCopy,%b32%\ws2help.dll,%t32%
+If,ExistFile,%b32%\wshelper.dll,FileCopy,%b32%\wshelper.dll,%t32%
+If,ExistFile,%b32%\wship6.dll,FileCopy,%b32%\wship6.dll,%t32%
+If,ExistFile,%b32%\wshnetbs.dll,FileCopy,%b32%\wshnetbs.dll,%t32%
+If,ExistFile,%b32%\WSHTCPIP.dll,FileCopy,%b32%\WSHTCPIP.dll,%t32%
+If,ExistFile,%b32%\wsock32.dll,FileCopy,%b32%\wsock32.dll,%t32%
+If,ExistFile,%b32%\wtsapi32.dll,FileCopy,%b32%\wtsapi32.dll,%t32%
+If,ExistFile,%b32%\xmllite.dll,FileCopy,%b32%\xmllite.dll,%t32%
+If,ExistFile,%b32%\xolehlp.dll,FileCopy,%b32%\xolehlp.dll,%t32%
+// Required for recovery environment
+If,ExistFile,%b32%\blb_ps.dll,FileCopy,%b32%\blb_ps.dll,%t32%
+If,ExistFile,%b32%\blbres.dll,FileCopy,%b32%\blbres.dll,%t32%
+// ifsutil.dll Required for xcopy
+If,ExistFile,%b32%\ifsutil.dll,FileCopy,%b32%\ifsutil.dll,%t32%
+If,ExistFile,%b32%\kerberos.dll,FileCopy,%b32%\kerberos.dll,%t32%
+// 2aCD Required for Taskmanager
+If,ExistFile,%b32%\utildll.dll,FileCopy,%b32%\utildll.dll,%t32%
+//-- Install.wim System32 Files
+Echo,"Processing standard file copy - Install.wim System32 Files..."
+ReqSys32,shdocvw.dll
+ReqSys32,shellstyle.dll
+If,ExistFile,%i32%\shfolder.dll,FileCopy,%i32%\shfolder.dll,%t32%
+ReqSys32,Shwebsvc.dll
+ReqSys32,ExplorerFrame.dll
+ReqSys32,duser.dll
+ReqSys32,hotplug.dll
+ReqSys32,oledlg.dll
+ReqSys32,mscms.dll
+If,ExistFile,%i32%\stdole2.tlb,FileCopy,%i32%\stdole2.tlb,%t32%
+If,ExistFile,%i32%\stdole32.tlb,FileCopy,%i32%\stdole32.tlb,%t32%
+// added by - rpaz needed to allow tray icon control (Hide/show/notifications)
+ReqSys32,taskbarcpl.dll
+If,ExistFile,%i32%\lz32.dll,FileCopy,%i32%\lz32.dll,%t32%
+//crtdll.dll (no x64 version and already in wow64 script for x64 builds)
+If,%SourceArch%,Equal,x86,Require_FileQ,crtdll.dll
+ReqSys32,w32time.dll
+ReqSys32,stobject.dll
+ReqSys32,batmeter.dll
+ReqSys32,fontext.dll
+ReqSys32,fontview.exe
+ReqSys32,fsutil.exe
+If,ExistFile,%i32%\vmstorfltres.dll,FileCopy,%i32%\vmstorfltres.dll,%t32%
+// Taking Ownership (Appinfo and ProfSvc services)
+ReqSys32,appinfo.dll
+ReqSys32,objsel.dll
+ReqSys32,profsvc.dll
+ReqSys32,provsvc.dll
+
+[LanPackStandard]
+//-- Copy all bootsrc mui used
+If,ExistFile,%b32%\%DistLang%\aclui.dll.mui,FileCopy,%b32%\%DistLang%\aclui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\advapi32.dll.mui,FileCopy,%b32%\%DistLang%\advapi32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\advpack.dll.mui,FileCopy,%b32%\%DistLang%\advpack.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\arp.exe.mui,FileCopy,%b32%\%DistLang%\arp.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\atl.dll.mui,FileCopy,%b32%\%DistLang%\atl.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\attrib.exe.mui,FileCopy,%b32%\%DistLang%\attrib.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\authui.dll.mui,FileCopy,%b32%\%DistLang%\authui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\autochk.exe.mui,FileCopy,%b32%\%DistLang%\autochk.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\autoconv.exe.mui,FileCopy,%b32%\%DistLang%\autoconv.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\AuxiliaryDisplayClassInstaller.dll.mui,FileCopy,%b32%\%DistLang%\AuxiliaryDisplayClassInstaller.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bcdboot.exe.mui,FileCopy,%b32%\%DistLang%\bcdboot.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bcdedit.exe.mui,FileCopy,%b32%\%DistLang%\bcdedit.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\BdeUnlockWizard.exe.mui,FileCopy,%b32%\%DistLang%\BdeUnlockWizard.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bfe.dll.mui,FileCopy,%b32%\%DistLang%\bfe.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\BitLockerWizard.exe.mui,FileCopy,%b32%\%DistLang%\BitLockerWizard.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\BitLockerWizardElev.exe.mui,FileCopy,%b32%\%DistLang%\BitLockerWizardElev.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\blbres.dll.mui,FileCopy,%b32%\%DistLang%\blbres.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bmrui.exe.mui,FileCopy,%b32%\%DistLang%\bmrui.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bootcfg.exe.mui,FileCopy,%b32%\%DistLang%\bootcfg.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\BootRec.exe.mui,FileCopy,%b32%\%DistLang%\BootRec.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bootres.dll.mui,FileCopy,%b32%\%DistLang%\bootres.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\bootstr.dll.mui,FileCopy,%b32%\%DistLang%\bootstr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\certcli.dll.mui,FileCopy,%b32%\%DistLang%\certcli.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\chkdsk.exe.mui,FileCopy,%b32%\%DistLang%\chkdsk.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\chkntfs.exe.mui,FileCopy,%b32%\%DistLang%\chkntfs.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\chkwudrv.dll.mui,FileCopy,%b32%\%DistLang%\chkwudrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ci.dll.mui,FileCopy,%b32%\%DistLang%\ci.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\clb.dll.mui,FileCopy,%b32%\%DistLang%\clb.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\clfs.sys.mui,FileCopy,%b32%\%DistLang%\clfs.sys.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\clusapi.dll.mui,FileCopy,%b32%\%DistLang%\clusapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cmd.exe.mui,FileCopy,%b32%\%DistLang%\cmd.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\comdlg32.dll.mui,FileCopy,%b32%\%DistLang%\comdlg32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\comres.dll.mui,FileCopy,%b32%\%DistLang%\comres.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\conhost.exe.mui,FileCopy,%b32%\%DistLang%\conhost.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\console.dll.mui,FileCopy,%b32%\%DistLang%\console.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\credui.dll.mui,FileCopy,%b32%\%DistLang%\credui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\crypt32.dll.mui,FileCopy,%b32%\%DistLang%\crypt32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cryptdlg.dll.mui,FileCopy,%b32%\%DistLang%\cryptdlg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cryptext.dll.mui,FileCopy,%b32%\%DistLang%\cryptext.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cryptsvc.dll.mui,FileCopy,%b32%\%DistLang%\cryptsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cryptui.dll.mui,FileCopy,%b32%\%DistLang%\cryptui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cryptxml.dll.mui,FileCopy,%b32%\%DistLang%\cryptxml.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\cscript.exe.mui,FileCopy,%b32%\%DistLang%\cscript.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\csrsrv.dll.mui,FileCopy,%b32%\%DistLang%\csrsrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\csrss.exe.mui,FileCopy,%b32%\%DistLang%\csrss.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\defragsvc.dll.mui,FileCopy,%b32%\%DistLang%\defragsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dhcpcmonitor.dll.mui,FileCopy,%b32%\%DistLang%\dhcpcmonitor.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dhcpcore.dll.mui,FileCopy,%b32%\%DistLang%\dhcpcore.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dhcpcore6.dll.mui,FileCopy,%b32%\%DistLang%\dhcpcore6.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dhcpcsvc.dll.mui,FileCopy,%b32%\%DistLang%\dhcpcsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dhcpcsvc6.dll.mui,FileCopy,%b32%\%DistLang%\dhcpcsvc6.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\DHCPQEC.DLL.MUI,FileCopy,%b32%\%DistLang%\DHCPQEC.DLL.MUI,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dinotify.exe.mui,FileCopy,%b32%\%DistLang%\dinotify.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\diskpart.exe.mui,FileCopy,%b32%\%DistLang%\diskpart.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\diskraid.exe.mui,FileCopy,%b32%\%DistLang%\diskraid.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\Dism.exe.mui,FileCopy,%b32%\%DistLang%\Dism.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dnsapi.dll.mui,FileCopy,%b32%\%DistLang%\dnsapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dnsrslvr.dll.mui,FileCopy,%b32%\%DistLang%\dnsrslvr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\doskey.exe.mui,FileCopy,%b32%\%DistLang%\doskey.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dpapimig.exe.mui,FileCopy,%b32%\%DistLang%\dpapimig.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\drvinst.exe.mui,FileCopy,%b32%\%DistLang%\drvinst.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\drvload.exe.mui,FileCopy,%b32%\%DistLang%\drvload.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\dui70.dll.mui,FileCopy,%b32%\%DistLang%\dui70.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\eapsvc.dll.mui,FileCopy,%b32%\%DistLang%\eapsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\efssvc.dll.mui,FileCopy,%b32%\%DistLang%\efssvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ESENT.dll.mui,FileCopy,%b32%\%DistLang%\ESENT.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\expand.exe.mui,FileCopy,%b32%\%DistLang%\expand.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\find.exe.mui,FileCopy,%b32%\%DistLang%\find.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\finger.exe.mui,FileCopy,%b32%\%DistLang%\finger.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\FirewallAPI.dll.mui,FileCopy,%b32%\%DistLang%\FirewallAPI.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\fixmapi.exe.mui,FileCopy,%b32%\%DistLang%\fixmapi.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\fltlib.dll.mui,FileCopy,%b32%\%DistLang%\fltlib.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\fltMC.exe.mui,FileCopy,%b32%\%DistLang%\fltMC.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\fms.dll.mui,FileCopy,%b32%\%DistLang%\fms.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ftp.exe.mui,FileCopy,%b32%\%DistLang%\ftp.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\fwpuclnt.dll.mui,FileCopy,%b32%\%DistLang%\fwpuclnt.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\gpapi.dll.mui,FileCopy,%b32%\%DistLang%\gpapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\gpsvc.dll.mui,FileCopy,%b32%\%DistLang%\gpsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\hhctrl.ocx.mui,FileCopy,%b32%\%DistLang%\hhctrl.ocx.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\hostname.exe.mui,FileCopy,%b32%\%DistLang%\hostname.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ICacls.exe.mui,FileCopy,%b32%\%DistLang%\ICacls.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\imageres.dll.mui,FileCopy,%b32%\%DistLang%\imageres.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\imagesp1.dll.mui,FileCopy,%b32%\%DistLang%\imagesp1.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\imapi.dll.mui,FileCopy,%b32%\%DistLang%\imapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\imapi2.dll.mui,FileCopy,%b32%\%DistLang%\imapi2.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\imapi2fs.dll.mui,FileCopy,%b32%\%DistLang%\imapi2fs.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\input.dll.mui,FileCopy,%b32%\%DistLang%\input.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ipconfig.exe.mui,FileCopy,%b32%\%DistLang%\ipconfig.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\iphlpapi.dll.mui,FileCopy,%b32%\%DistLang%\iphlpapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ipsecsvc.dll.mui,FileCopy,%b32%\%DistLang%\ipsecsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\kerberos.dll.mui,FileCopy,%b32%\%DistLang%\kerberos.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\kernel32.dll.mui,FileCopy,%b32%\%DistLang%\kernel32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\KernelBase.dll.mui,FileCopy,%b32%\%DistLang%\KernelBase.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\lmhsvc.dll.mui,FileCopy,%b32%\%DistLang%\lmhsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\lodctr.exe.mui,FileCopy,%b32%\%DistLang%\lodctr.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\lsasrv.dll.mui,FileCopy,%b32%\%DistLang%\lsasrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\lsm.exe.mui,FileCopy,%b32%\%DistLang%\lsm.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\manage-bde.exe.mui,FileCopy,%b32%\%DistLang%\manage-bde.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\MdSched.exe.mui,FileCopy,%b32%\%DistLang%\MdSched.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\montr_ci.dll.mui,FileCopy,%b32%\%DistLang%\montr_ci.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mountvol.exe.mui,FileCopy,%b32%\%DistLang%\mountvol.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mpr.dll.mui,FileCopy,%b32%\%DistLang%\mpr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mprmsg.dll.mui,FileCopy,%b32%\%DistLang%\mprmsg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mpssvc.dll.mui,FileCopy,%b32%\%DistLang%\mpssvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mrinfo.exe.mui,FileCopy,%b32%\%DistLang%\mrinfo.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\msctf.dll.mui,FileCopy,%b32%\%DistLang%\msctf.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\msprivs.dll.mui,FileCopy,%b32%\%DistLang%\msprivs.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\msscript.ocx.mui,FileCopy,%b32%\%DistLang%\msscript.ocx.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mssign32.dll.mui,FileCopy,%b32%\%DistLang%\mssign32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\msv1_0.dll.mui,FileCopy,%b32%\%DistLang%\msv1_0.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\mswsock.dll.mui,FileCopy,%b32%\%DistLang%\mswsock.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\nbtstat.exe.mui,FileCopy,%b32%\%DistLang%\nbtstat.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\nci.dll.mui,FileCopy,%b32%\%DistLang%\nci.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ncrypt.dll.mui,FileCopy,%b32%\%DistLang%\ncrypt.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ndadmin.exe.mui,FileCopy,%b32%\%DistLang%\ndadmin.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netbtugc.exe.mui,FileCopy,%b32%\%DistLang%\netbtugc.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netcfg.exe.mui,FileCopy,%b32%\%DistLang%\netcfg.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netcfgx.dll.mui,FileCopy,%b32%\%DistLang%\netcfgx.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\neth.dll.mui,FileCopy,%b32%\%DistLang%\neth.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netiohlp.dll.mui,FileCopy,%b32%\%DistLang%\netiohlp.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netiougc.exe.mui,FileCopy,%b32%\%DistLang%\netiougc.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netlogon.dll.mui,FileCopy,%b32%\%DistLang%\netlogon.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netman.dll.mui,FileCopy,%b32%\%DistLang%\netman.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netmsg.dll.mui,FileCopy,%b32%\%DistLang%\netmsg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netsh.exe.mui,FileCopy,%b32%\%DistLang%\netsh.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netshell.dll.mui,FileCopy,%b32%\%DistLang%\netshell.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\netstat.exe.mui,FileCopy,%b32%\%DistLang%\netstat.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\newdev.dll.mui,FileCopy,%b32%\%DistLang%\newdev.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\newdev.exe.mui,FileCopy,%b32%\%DistLang%\newdev.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\nlasvc.dll.mui,FileCopy,%b32%\%DistLang%\nlasvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\notepad.exe.mui,FileCopy,%b32%\%DistLang%\notepad.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\nsisvc.dll.mui,FileCopy,%b32%\%DistLang%\nsisvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ntdll.dll.mui,FileCopy,%b32%\%DistLang%\ntdll.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ntlanman.dll.mui,FileCopy,%b32%\%DistLang%\ntlanman.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ntmarta.dll.mui,FileCopy,%b32%\%DistLang%\ntmarta.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ntprint.exe.mui,FileCopy,%b32%\%DistLang%\ntprint.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\odbcint.dll.mui,FileCopy,%b32%\%DistLang%\odbcint.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ole32.dll.mui,FileCopy,%b32%\%DistLang%\ole32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\oleaccrc.dll.mui,FileCopy,%b32%\%DistLang%\oleaccrc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\oleres.dll.mui,FileCopy,%b32%\%DistLang%\oleres.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\pathping.exe.mui,FileCopy,%b32%\%DistLang%\pathping.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\pcwum.dll.mui,FileCopy,%b32%\%DistLang%\pcwum.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ping.exe.mui,FileCopy,%b32%\%DistLang%\ping.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\pnpui.dll.mui,FileCopy,%b32%\%DistLang%\pnpui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\poqexec.exe.mui,FileCopy,%b32%\%DistLang%\poqexec.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\powrprof.dll.mui,FileCopy,%b32%\%DistLang%\powrprof.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\print.exe.mui,FileCopy,%b32%\%DistLang%\print.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\printui.dll.mui,FileCopy,%b32%\%DistLang%\printui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\procinst.dll.mui,FileCopy,%b32%\%DistLang%\procinst.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\propsys.dll.mui,FileCopy,%b32%\%DistLang%\propsys.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\pshed.dll.mui,FileCopy,%b32%\%DistLang%\pshed.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\Qutil.dll.mui,FileCopy,%b32%\%DistLang%\Qutil.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasapi32.dll.mui,FileCopy,%b32%\%DistLang%\rasapi32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasauto.dll.mui,FileCopy,%b32%\%DistLang%\rasauto.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasautou.exe.mui,FileCopy,%b32%\%DistLang%\rasautou.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rascfg.dll.mui,FileCopy,%b32%\%DistLang%\rascfg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\raschap.dll.mui,FileCopy,%b32%\%DistLang%\raschap.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasctrs.dll.mui,FileCopy,%b32%\%DistLang%\rasctrs.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasdiag.dll.mui,FileCopy,%b32%\%DistLang%\rasdiag.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasdlg.dll.mui,FileCopy,%b32%\%DistLang%\rasdlg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasmans.dll.mui,FileCopy,%b32%\%DistLang%\rasmans.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rasmontr.dll.mui,FileCopy,%b32%\%DistLang%\rasmontr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rastls.dll.mui,FileCopy,%b32%\%DistLang%\rastls.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\reagent.dll.mui,FileCopy,%b32%\%DistLang%\reagent.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\recdisc.exe.mui,FileCopy,%b32%\%DistLang%\recdisc.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\recover.exe.mui,FileCopy,%b32%\%DistLang%\recover.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\reg.exe.mui,FileCopy,%b32%\%DistLang%\reg.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\regsvr32.exe.mui,FileCopy,%b32%\%DistLang%\regsvr32.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\repair-bde.exe.mui,FileCopy,%b32%\%DistLang%\repair-bde.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\replace.exe.mui,FileCopy,%b32%\%DistLang%\replace.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\Robocopy.exe.mui,FileCopy,%b32%\%DistLang%\Robocopy.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\route.exe.mui,FileCopy,%b32%\%DistLang%\route.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\RpcEpMap.dll.mui,FileCopy,%b32%\%DistLang%\RpcEpMap.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rpcrt4.dll.mui,FileCopy,%b32%\%DistLang%\rpcrt4.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rstrui.exe.mui,FileCopy,%b32%\%DistLang%\rstrui.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\rundll32.exe.mui,FileCopy,%b32%\%DistLang%\rundll32.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sacsess.exe.mui,FileCopy,%b32%\%DistLang%\sacsess.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sacsvr.dll.mui,FileCopy,%b32%\%DistLang%\sacsvr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\samsrv.dll.mui,FileCopy,%b32%\%DistLang%\samsrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\scecli.dll.mui,FileCopy,%b32%\%DistLang%\scecli.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\scesrv.dll.mui,FileCopy,%b32%\%DistLang%\scesrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\scext.dll.mui,FileCopy,%b32%\%DistLang%\scext.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\scrobj.dll.mui,FileCopy,%b32%\%DistLang%\scrobj.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\scrrun.dll.mui,FileCopy,%b32%\%DistLang%\scrrun.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sechost.dll.mui,FileCopy,%b32%\%DistLang%\sechost.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\services.exe.mui,FileCopy,%b32%\%DistLang%\services.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\setupapi.dll.mui,FileCopy,%b32%\%DistLang%\setupapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sfc.exe.mui,FileCopy,%b32%\%DistLang%\sfc.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\shell32.dll.mui,FileCopy,%b32%\%DistLang%\shell32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\shlwapi.dll.mui,FileCopy,%b32%\%DistLang%\shlwapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\slc.dll.mui,FileCopy,%b32%\%DistLang%\slc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\SmiEngine.dll.mui,FileCopy,%b32%\%DistLang%\SmiEngine.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\smss.exe.mui,FileCopy,%b32%\%DistLang%\smss.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\spp.dll.mui,FileCopy,%b32%\%DistLang%\spp.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sppc.dll.mui,FileCopy,%b32%\%DistLang%\sppc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\srcore.dll.mui,FileCopy,%b32%\%DistLang%\srcore.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sstpsvc.dll.mui,FileCopy,%b32%\%DistLang%\sstpsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\Storprop.dll.mui,FileCopy,%b32%\%DistLang%\Storprop.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\subst.exe.mui,FileCopy,%b32%\%DistLang%\subst.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\svchost.exe.mui,FileCopy,%b32%\%DistLang%\svchost.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\swprv.dll.mui,FileCopy,%b32%\%DistLang%\swprv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sxproxy.dll.mui,FileCopy,%b32%\%DistLang%\sxproxy.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sxs.dll.mui,FileCopy,%b32%\%DistLang%\sxs.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sxstrace.exe.mui,FileCopy,%b32%\%DistLang%\sxstrace.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\sysclass.dll.mui,FileCopy,%b32%\%DistLang%\sysclass.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\takeown.exe.mui,FileCopy,%b32%\%DistLang%\takeown.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\tapi32.dll.mui,FileCopy,%b32%\%DistLang%\tapi32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\taskmgr.exe.mui,FileCopy,%b32%\%DistLang%\taskmgr.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\tbssvc.dll.mui,FileCopy,%b32%\%DistLang%\tbssvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\tcpipcfg.dll.mui,FileCopy,%b32%\%DistLang%\tcpipcfg.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\tdh.dll.mui,FileCopy,%b32%\%DistLang%\tdh.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\tracert.exe.mui,FileCopy,%b32%\%DistLang%\tracert.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ubpm.dll.mui,FileCopy,%b32%\%DistLang%\ubpm.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ulib.dll.mui,FileCopy,%b32%\%DistLang%\ulib.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\umpnpmgr.dll.mui,FileCopy,%b32%\%DistLang%\umpnpmgr.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\unlodctr.exe.mui,FileCopy,%b32%\%DistLang%\unlodctr.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\urlmon.dll.mui,FileCopy,%b32%\%DistLang%\urlmon.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\user32.dll.mui,FileCopy,%b32%\%DistLang%\user32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\userenv.dll.mui,FileCopy,%b32%\%DistLang%\userenv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\userinit.exe.mui,FileCopy,%b32%\%DistLang%\userinit.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\uxtheme.dll.mui,FileCopy,%b32%\%DistLang%\uxtheme.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vds.exe.mui,FileCopy,%b32%\%DistLang%\vds.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vdsbas.dll.mui,FileCopy,%b32%\%DistLang%\vdsbas.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vdsdyn.dll.mui,FileCopy,%b32%\%DistLang%\vdsdyn.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vdsutil.dll.mui,FileCopy,%b32%\%DistLang%\vdsutil.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vdsvd.dll.mui,FileCopy,%b32%\%DistLang%\vdsvd.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\verifier.exe.mui,FileCopy,%b32%\%DistLang%\verifier.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\vsstrace.dll.mui,FileCopy,%b32%\%DistLang%\vsstrace.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\VSSVC.exe.mui,FileCopy,%b32%\%DistLang%\VSSVC.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wbadmin.exe.mui,FileCopy,%b32%\%DistLang%\wbadmin.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wbengine.exe.mui,FileCopy,%b32%\%DistLang%\wbengine.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wdscapture.exe.mui,FileCopy,%b32%\%DistLang%\wdscapture.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\webio.dll.mui,FileCopy,%b32%\%DistLang%\webio.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\webservices.dll.mui,FileCopy,%b32%\%DistLang%\webservices.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wer.dll.mui,FileCopy,%b32%\%DistLang%\wer.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\werui.dll.mui,FileCopy,%b32%\%DistLang%\werui.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wevtapi.dll.mui,FileCopy,%b32%\%DistLang%\wevtapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wevtsvc.dll.mui,FileCopy,%b32%\%DistLang%\wevtsvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wevtutil.exe.mui,FileCopy,%b32%\%DistLang%\wevtutil.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wimgapi.dll.mui,FileCopy,%b32%\%DistLang%\wimgapi.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\win32k.sys.mui,FileCopy,%b32%\%DistLang%\win32k.sys.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winhttp.dll.mui,FileCopy,%b32%\%DistLang%\winhttp.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wininet.dll.mui,FileCopy,%b32%\%DistLang%\wininet.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wininit.exe.mui,FileCopy,%b32%\%DistLang%\wininit.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winload.exe.mui,FileCopy,%b32%\%DistLang%\winload.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winlogon.exe.mui,FileCopy,%b32%\%DistLang%\winlogon.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winmm.dll.mui,FileCopy,%b32%\%DistLang%\winmm.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winpeshl.exe.mui,FileCopy,%b32%\%DistLang%\winpeshl.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winresume.exe.mui,FileCopy,%b32%\%DistLang%\winresume.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winspool.drv.mui,FileCopy,%b32%\%DistLang%\winspool.drv.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\winsrv.dll.mui,FileCopy,%b32%\%DistLang%\winsrv.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wkssvc.dll.mui,FileCopy,%b32%\%DistLang%\wkssvc.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wldap32.dll.mui,FileCopy,%b32%\%DistLang%\wldap32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\WmiMgmt.msc,FileCopy,%b32%\%DistLang%\WmiMgmt.msc,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wpeutil.dll.mui,FileCopy,%b32%\%DistLang%\wpeutil.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\ws2_32.dll.mui,FileCopy,%b32%\%DistLang%\ws2_32.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wscript.exe.mui,FileCopy,%b32%\%DistLang%\wscript.exe.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wshelper.dll.mui,FileCopy,%b32%\%DistLang%\wshelper.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wship6.dll.mui,FileCopy,%b32%\%DistLang%\wship6.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wshom.ocx.mui,FileCopy,%b32%\%DistLang%\wshom.ocx.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wshtcpip.dll.mui,FileCopy,%b32%\%DistLang%\wshtcpip.dll.mui,%t32%\%DistLang%
+If,ExistFile,%b32%\%DistLang%\wsock32.dll.mui,FileCopy,%b32%\%DistLang%\wsock32.dll.mui,%t32%\%DistLang%
+// 2aCD required for Taskmanager
+If,ExistFile,%b32%\%DistLang%\utildll.dll.mui,FileCopy,%b32%\%DistLang%\utildll.dll.mui,%t32%\%DistLang%
+
+[SideBySide]
+If,Not,ExistDir,%tw%\WinSxS\Manifests,DirMake,%tw%\WinSxS\Manifests
+If,Not,ExistDir,%tw%\WinSxS\Catalogs,DirMake,%tw%\WinSxS\Catalogs
+//-
+DirCopy,%bw%\winsxs\*_microsoft.windows.c..-controls.resources_6595b64144ccf1df_*_%DistLang%*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.c..-controls.resources_6595b64144ccf1df_*_%DistLang%*,%tw%\winsxs\manifests
+//-
+DirCopy,%bw%\winsxs\*_microsoft.windows.common-controls*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.common-controls*,%tw%\winsxs\manifests
+//-
+DirCopy,%bw%\winsxs\*_microsoft-windows-servicingstack*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft-windows-servicingstack*,%tw%\winsxs\manifests
+//-
+DirCopy,%bw%\winsxs\*_microsoft.windows.gdiplus*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.gdiplus*,%tw%\winsxs\manifests
+//-
+DirCopy,%bw%\winsxs\*_microsoft.windows.isolationautomation*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.isolationautomation*,%tw%\winsxs\manifests
+//-
+DirCopy,%bw%\winsxs\*_microsoft-windows-riched32*,%tw%\winsxs\
+FileCopy,%bw%\winsxs\manifests\*_microsoft-windows-riched32*,%tw%\winsxs\manifests
+//- Others manifests files
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.i..utomation.proxystub_*,%tw%\winsxs\manifests
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.fusion*,%tw%\winsxs\manifests
+FileCopy,%bw%\winsxs\manifests\*_microsoft.windows.systemcompatible_*,%tw%\winsxs\manifests
+//FileCopy,%bw%\winsxs\manifests\*_microsoft-windows-m..tion-isolationlayer*,%tw%\winsxs\manifests
+
+[LanPack]
+FileCopy,%b32%\%LanPackDistLang%\*.*,%t32%\%LanPackDistLang%
+
+[LanPackUS]
+Set,%LanPackDistLang%,en-US
+run,%ScriptFile%,LanPack
+
+[Process_Keyboard]
+// changed by - rpaz - Lancelot for checkbox Add All Keyboard
+Echo,"Processing copy Keyboards..."
+If,%AllKbd_CheckBox%,Equal,True,FileCopy,%b32%\KBD*.DLL,%t32%,NoRec
+Else,Begin
+FileCopy,%b32%\KBDUS.DLL,%t32%\
+//--> minimum NLS first now because of Auto
+If,ExistSection,%ScriptDir%\KeyBoard.script,minimum_KBD_%DistLang%,Run,%ScriptDir%\KeyBoard.script,minimum_KBD_%DistLang%
+End
+//-
+Echo,"Processing KeyBoard settings..."
+IniRead,%ProjectDir%\script.project,IniVariables,TKeyBoard,%KeyBoard%
+//-
+If,%KeyBoard%,Equal,"Import HostOS",Begin
+If,ExistSection,"%ScriptDir%\HostOS Import Manager.script",Called_process,Run,"%ScriptDir%\HostOS Import Manager.script",Called_process,"%ScriptDir%\HostOS Import Manager.script",KeyBoard
+Else,Halt,"%ScriptDir%\HostOS Import Manager plugin was not found. Exiting..."
+End
+Else,Begin
+If,ExistSection,"%ScriptDir%\KeyBoard.script",Called_process,Run,"%ScriptDir%\KeyBoard.script",Called_process,"%ScriptDir%\KeyBoard.script",%KeyBoard%
+Else,Halt,"%ScriptDir%\KeyBoard plugin was not found. Exiting..."
+End
+
+[Process_TimeZone]
+Echo,"Set the registry permission on the '\services\W32Time'..."
+RegHiveLoad,Tmp_System,%RegSystem%
+// Allow to start the W32Time service should set the registry permission on the '\services\W32Time'
+ShellExecute,Hide,%Tools%\%OSArch%\SetAcl.exe,"-on HKLM\Tmp_System\ControlSet001\services\W32Time -ot reg -rec yes -actn ace -ace n:S-1-1-0;p:full;s:y"
+If,Not,%ExitCode%,Equal,0,Run,%ScriptFile%,EchoWarn10,"SetAcl - NTFS permission on Tmp_System\ControlSet001\services\W32Time FAIL"
+RegHiveUnLoad,Tmp_System
+//-
+Echo,"Processing Time Zone Information settings..."
+IniRead,%ProjectDir%\script.project,IniVariables,TTimeZone,%TimeZone%
+//-
+If,%TimeZone%,Equal,"Import HostOS",Begin
+If,ExistSection,"%ScriptDir%\HostOS Import Manager.script",Called_process,Run,"%ScriptDir%\HostOS Import Manager.script",Called_process,"%ScriptDir%\HostOS Import Manager.script",TimeZone
+Else,Halt,"%ScriptDir%\HostOS Import Manager plugin was not found. Exiting..."
+End
+Else,Begin
+If,ExistSection,"%ScriptDir%\TimeZone.script",Called_process,Run,"%ScriptDir%\TimeZone.script",Called_process,"%ScriptDir%\TimeZone.script",%TimeZone%
+Else,Halt,"%ScriptDir%\TimeZone plugin was not found. Exiting..."
+End
+
+[Process_Format]
+Echo,"Processing Format settings..."
+IniRead,%ProjectDir%\script.project,IniVariables,TFormat,%Format%
+//-
+If,%Format%,Equal,"Import HostOS",Begin
+If,ExistSection,"%ScriptDir%\HostOS Import Manager.script",Called_process,Run,"%ScriptDir%\HostOS Import Manager.script",Called_process,"%ScriptDir%\HostOS Import Manager.script",Format
+Else,Halt,"%ScriptDir%\HostOS Import Manager plugin was not found. Exiting..."
+End
+Else,Begin
+If,ExistSection,"%ScriptDir%\Format.script",Called_process,Run,"%ScriptDir%\Format.script",Called_process,"%ScriptDir%\Format.script",%Format%
+Else,Halt,"%ScriptDir%\Format plugin was not found. Exiting..."
+End
+
+[Process_Locale]
+Echo,"Processing copy Language Files (Nls)..."
+If,%AllNls_CheckBox%,Equal,True,FileCopy,%b32%\*.nls,%t32%,NoRec
+Else,If,ExistSection,%LocaleScript%,minimum_NLS_%DistLang%,Run,%LocaleScript%,minimum_NLS_%DistLang%
+//--> minimum NLS first now because of Auto
+//-
+Echo,"Processing locale settings..."
+IniRead,%ProjectDir%\script.project,IniVariables,TLocale,%Locale%
+//-
+If,%Locale%,Equal,"Import HostOS",Begin
+// Setting for Auto first to match the source (not sure that it is necessary)
+Run,%LocaleScript%,Called_process,Auto
+If,ExistSection,"%ScriptDir%\HostOS Import Manager.script",Called_process,Run,"%ScriptDir%\HostOS Import Manager.script",Called_process,"%ScriptDir%\HostOS Import Manager.script",Locale
+Else,Halt,"%ScriptDir%\HostOS Import Manager plugin was not found. Exiting..."
+End
+Else,Begin
+Run,%LocaleScript%,Called_process,%Locale%
+End
+
+[CreateDesktopIniFiles]
+//--Vista - W2008 not checked - numbers taken from Win7 (Since Win7PE_SE only for Win7DVD sources ;))
+// Lancelot: attributes having +R is not enough - when pe boots attributes loose their Readonly -- Workaround: to protect ReadOnly add +S ;)
+CopyDesktopIni,%InstallSRC%\Users\desktop.ini,%TargetProfilesBaseDir%\Users
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\Contacts\desktop.ini,%TargetProfilesUserDir%\Contacts
+// comment for not having on desktop or Attrib +A +H +S in autorun.cmd
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\Desktop\desktop.ini,%TargetProfilesUserDir%\Desktop
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Documents\desktop.ini,%TargetProfilesUserDir%\Documents
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Downloads\desktop.ini,%TargetProfilesUserDir%\Downloads
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Favorites\desktop.ini,%TargetProfilesUserDir%\Favorites
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Favorites\Links\desktop.ini,%TargetProfilesUserDir%\Favorites\Links
+//Favorites being +R is not enough --- when PE boots folder attributes reverts -R --- workaround :) add +S (If not than you see "Favorites" in start menu instead of local name)
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Links\desktop.ini,%TargetProfilesUserDir%\Links
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Music\desktop.ini,%TargetProfilesUserDir%\Music
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Pictures\desktop.ini,%TargetProfilesUserDir%\Pictures
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Saved Games\desktop.ini,%TargetProfilesUserDir%\Saved Games
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\Searches\desktop.ini,%TargetProfilesUserDir%\Searches
+CopyDesktopIni,%InstallSRC%\Users\Administrator\Videos\desktop.ini,%TargetProfilesUserDir%\Videos
+//
+CopyDesktopIni,"%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\desktop.ini","%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu"
+CopyDesktopIni,"%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\desktop.ini","%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs"
+CopyDesktopIni,"%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\desktop.ini","%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+CopyDesktopIni,"%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Libraries\desktop.ini","%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Libraries"
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\Accessibility\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\Accessibility
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Administrative Tools\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Administrative Tools
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Maintenance\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Maintenance
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\SendTo\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\SendTo
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Recent\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Recent
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Temporary Internet Files\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Temporary Internet Files
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\History\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\History
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Feeds Cache\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Feeds Cache
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows Mail\Stationery\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows Mail\Stationery
+//CopyDesktopIni,%InstallSRC%\Users\Administrator\AppData\Roaming\Microsoft\Windows\Burn\Burn\desktop.ini,%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Burn\Burn
+//---------------------------------------------------------------------------------------------------------------------------------------
+//- Not Used (keep for history)
+//---------------------------------------------------------------------------------------------------------------------------------------
+
+[FileCopyMinimal]
+Echo,"Processing Minimal file copy...Wait and be patient..."
+Run,%ScriptFile%,LanPack
+If,Not,%DistLang%,Equal,en-US,Run,%ScriptFile%,LanPackUS
+//--
+FileCopy,%SourceDir%\bootmgr,%TargetDir%\BOOTMGR
+DirCopy,%SourceDir%\boot,%TargetDir%
+DirCopy,"%BootSRC%\Program Files",%TargetDir%
+DirCopy,%BootSRC%\users,%TargetDir%
+FileDelete,%TargetDir%\users\Default\NTUSER.DAT{*
+FileDelete,%TargetDir%\users\Default\NTUSER.LOG*
+DirCopy,%BootSRC%\ProgramData,%TargetDir%
+DirCopy,%bw%\%DistLang%,%tw%
+//DirCopy,%bw%\inf,%tw%
+FileCopy,%bw%\inf\*.inf,%tw%\inf\,NoRec
+If,Not,ExistDir,%tw%\inf\%DistLang%,DirMake,%tw%\inf\%DistLang%
+DirCopy,%bw%\inf\%DistLang%,%tw%\inf
+If,ExistDir,%b32%\en-US,If,Not,ExistDir,%t32%\en-US,DirMake,%t32%\en-US
+If,ExistDir,%b32%\en-US,DirCopy,%b32%\en-US,%t32%
+FileCopy,%b32%\Boot\winload.*,%t32%\Boot
+//-
+If,ExistDir,%b32%\Recovery,DirCopy,%b32%\Recovery,%t32%
+//DirCopy,%b32%\config\systemprofile,%t32%\config
+FileCopy,%b32%\config\components,%t32%\config
+FileCopy,%b32%\config\Default,%t32%\config
+FileCopy,%b32%\config\sam,%t32%\config
+FileCopy,%b32%\config\Security,%t32%\config
+FileCopy,%b32%\config\software,%t32%\config
+FileCopy,%b32%\config\system,%t32%\config
+IniWrite,%projectdir%\script.project,IniVariables,SoftwareHive,Boot.wim
+IniWrite,%projectdir%\script.project,IniVariables,DriversHive,Boot.wim
+//-
+DirCopy,%b32%\driverstore,%t32%
+DirCopy,%b32%\drivers,%t32%
+//-
+Dirdelete,%t32%\driverStore\FileRepository
+Dircopy,%b32%\driverstore\FileRepository\machine.inf_*,%t32%\driverStore\FileRepository
+Dircopy,%b32%\driverstore\FileRepository\volume.inf_*,%t32%\driverStore\FileRepository
+Dircopy,%b32%\driverstore\FileRepository\usbstor.inf_*,%t32%\driverStore\FileRepository
+Dircopy,%b32%\driverstore\FileRepository\disk.inf_*,%t32%\driverStore\FileRepository
+Dircopy,%b32%\driverstore\FileRepository\vhdmp.inf_*,%t32%\driverStore\FileRepository
+//-
+Filedelete,%tw%\fonts\*.ttf
+Filecopy,%bw%\fonts\tahoma*,%tw%\fonts\
+Filecopy,%bw%\fonts\marlett.ttf,%tw%\fonts\
+Filecopy,%bw%\fonts\micross.ttf,%tw%\fonts\
+Filecopy,%bw%\fonts\lucon.ttf,%tw%\fonts\
+//-
+If,Not,ExistDir,%tw%\winsxs\manifests\,DirMake,%tw%\winsxs\manifests
+//-
+//Servicing (DISM /PEIMG)
+DirCopy,%bw%\servicing,%tw%
+If,ExistDir,%b32%\Dism,DirCopy,%b32%\Dism,%t32%
+DirCopy,%b32%\SMI,%t32%
+//-
+If,ExistDir,%bw%\Globalization,DirCopy,%bw%\Globalization,%tw%
+//SideBySide
+Echo,"Processing standard file copy - Side By Side Files..."
+Run,%ScriptFile%,SideBySide
+//-
+//-- SysWOW64 Boot Files
+If,ExistDir,%bw%\SysWOW64,Begin
+Echo,"Processing standard file copy - SysWOW64 Files..."
+DirCopy,%bw%\SysWOW64,%tw%
+//- Removes unnecessary Languages folders except fallback en-US
+If,ExistDir,%tw%\SysWOW64,Run,%ScriptFile%,RemovesFullMuiDir,%tw%\SysWOW64
+End
+//-
+//FileCopy,%b32%\*.dat,%t32%,NoRec
+//FileCopy,%bw%\*.exe,%tw%,NoRec
+ReqBWin,bfsvc.exe
+ReqBWin,regedit.exe
+//FileCopy,%b32%\*.exe,%t32%,NoRec
+ReqB32,conhost.exe
+FileCopy,%bw%\*.ini,%tw%,NoRec
+ReqB32,winpeshl.ini
+FileCopy,%bw%\WindowsShell.Manifest,%tw%
+//FileCopy,%b32%\*.ocx,%t32%,NoRec
+//FileCopy,%b32%\*.com,%t32%,NoRec
+//FileCopy,%b32%\*.bmp,%t32%,NoRec
+FileCopy,%b32%\*.cmd,%t32%,NoRec
+//-
+ReqB32,aclui.dll
+ReqB32,advapi32.dll
+ReqB32,advpack.dll
+//--ReqB32,api-ms-*.dll;NOREC - Better not use ReqB32 with * or ?
+FileCopy,%b32%\api-ms-*.dll,%t32%,NoRec
+ReqB32,apisetschema.dll
+ReqB32,atl.dll
+ReqB32,atmlib.dll
+ReqB32,authui.dll
+ReqB32,authz.dll
+//ReqB32,AuxiliaryDisplayClassInstaller.dll
+ReqB32,basesrv.dll
+//ReqB32,bcdedit.exe
+ReqSys32,bcdedit.exe
+ReqB32,bcdprov.dll
+ReqB32,bcdsrv.dll
+ReqB32,bcrypt.dll
+ReqB32,bcryptprimitives.dll
+///ReqB32,bderepair.dll
+///ReqB32,bdeui.dll
+///ReqB32,BFE.DLL
+ReqB32,bootstr.dll
+ReqB32,BOOTVID.DLL
+ReqB32,browcli.dll
+ReqB32,C_1251.NLS
+ReqB32,C_1252.NLS
+ReqB32,C_437.NLS
+ReqB32,C_850.NLS
+ReqB32,cabinet.dll
+ReqB32,certcli.dll
+ReqB32,cfgmgr32.dll
+ReqB32,chkwudrv.dll
+ReqB32,ci.dll
+ReqB32,clb.dll
+ReqB32,clfs.sys
+ReqB32,clusapi.dll
+ReqB32,cmd.exe
+ReqB32,cmipnpinstall.dll
+ReqB32,cngaudit.dll
+ReqB32,comcat.dll
+ReqB32,comdlg32.dll
+//ReqB32,comres.dll
+ReqB32,console.dll
+ReqB32,credui.dll
+ReqB32,crypt32.dll
+ReqB32,cryptbase.dll
+ReqB32,cryptdlg.dll
+ReqB32,cryptdll.dll
+ReqB32,cryptext.dll
+ReqB32,cryptnet.dll
+ReqB32,cryptsp.dll
+ReqB32,cryptsvc.dll
+ReqB32,cryptui.dll
+ReqB32,cryptxml.dll
+ReqB32,csrsrv.dll
+ReqB32,csrss.exe
+ReqB32,davhlpr.dll
+ReqB32,dbgeng.dll
+ReqB32,dbghelp.dll
+///ReqB32,defragsvc.dll
+ReqB32,devobj.dll
+ReqB32,devrtl.dll
+ReqB32,dfscli.dll
+///ReqB32,dhcpcmonitor.dll
+///ReqB32,dhcpcore.dll
+///ReqB32,dhcpcore6.dll
+///ReqB32,dhcpcsvc.dll
+///ReqB32,dhcpcsvc6.dll
+///ReqB32,dhcpqec.dll
+ReqB32,dnsapi.dll
+///ReqB32,dnsrslvr.dll
+ReqB32,drvinst.exe
+ReqB32,drvstore.dll
+ReqB32,dsrole.dll
+ReqB32,dui70.dll
+//ReqB32,dwmapi.dll
+ReqSys32,dwmapi.dll
+///ReqB32,eapsvc.dll
+///ReqB32,efssvc.dll
+///ReqB32,efsutil.dll
+ReqB32,esent.dll
+ReqB32,feclient.dll
+///ReqB32,FirewallAPI.dll
+ReqB32,fltLib.dll
+ReqB32,fms.dll
+ReqB32,framebuf.dll
+ReqB32,framedynos.dll
+ReqB32,FWPUCLNT.DLL
+ReqB32,gdi32.dll
+///ReqB32,gpapi.dll
+///ReqB32,gpsvc.dll
+FileCopy,%b32%\hal*.dll,%t32%,NoRec
+ReqB32,iertutil.dll
+//--ReqB32,image*.dll - Better not use ReqB32 with * or ? --- keep in mind, following command is recursive ?!?  (+ info: no image*.dll.mui files;))
+FileCopy,%b32%\image*.dll,%t32%
+//ReqB32,imagehlp.dll
+//ReqB32,imageres.dll
+//ReqB32,imagesp1.dll
+ReqB32,imapi.dll
+ReqB32,imapi2.dll
+ReqB32,imapi2fs.dll
+ReqB32,imm32.dll
+ReqB32,input.dll
+ReqB32,IPHLPAPI.DLL
+ReqB32,IPSECSVC.dll
+ReqB32,KBDUS.DLL
+ReqB32,kdcom.dll
+ReqB32,kernel32.dll
+ReqB32,KernelBase.dll
+ReqB32,ktmw32.dll
+ReqB32,l_intl.nls
+ReqB32,linkinfo.dll
+ReqB32,lmhsvc.dll
+ReqB32,locale.nls
+ReqB32,logoncli.dll
+ReqB32,lpk.dll
+ReqB32,lsasrv.dll
+ReqB32,lsass.exe
+ReqB32,lsm.exe
+///ReqB32,montr_ci.dll
+ReqB32,mpr.dll
+ReqB32,mprapi.dll
+ReqB32,mprmsg.dll
+ReqB32,mpssvc.dll
+ReqB32,msasn1.dll
+ReqB32,msctf.dll
+ReqB32,msftedit.dll
+ReqB32,msimg32.dll
+ReqB32,msls31.dll
+ReqB32,msprivs.dll
+ReqB32,mssign32.dll
+ReqB32,msv1_0.dll
+ReqB32,msvcirt.dll
+ReqB32,msvcp60.dll
+ReqB32,msvcrt.dll
+ReqB32,msvcrt40.dll
+ReqB32,mswsock.dll
+ReqB32,nci.dll
+ReqB32,ncobjapi.dll
+ReqB32,ncrypt.dll
+//--ReqB32,net*.dll - Better not use ReqB32 with * or ? --- keep in mind, following command is recursive ?!?
+FileCopy,%b32%\net*.dll,%t32%
+If,ExistFile,%TargetDir%\Windows\System32\netshell.dll,Filedelete,%TargetDir%\Windows\System32\netshell.dll
+ReqB32,netapi32.dll
+ReqB32,netutils.dll
+ReqB32,newdev.dll
+ReqB32,nlaapi.dll
+ReqB32,nlasvc.dll
+ReqB32,normaliz.dll
+ReqB32,nrpsrv.dll
+ReqB32,nsi.dll
+ReqB32,nsisvc.dll
+ReqB32,ntdll.dll
+ReqB32,ntdsapi.dll
+ReqB32,ntkrnlpa.exe
+ReqB32,ntlanman.dll
+ReqB32,ntmarta.dll
+ReqB32,ntoskrnl.exe
+///ReqB32,odbc*.dll
+ReqB32,ole32.dll
+ReqB32,oleacc.dll
+ReqB32,oleaccrc.dll
+ReqB32,oleaut32.dll
+ReqB32,oleres.dll
+ReqB32,pcwum.dll
+ReqB32,pnpsetup.dll
+ReqB32,pnpui.dll
+ReqB32,powrprof.dll
+///ReqB32,printui.dll
+///ReqB32,procinst.dll
+ReqB32,profapi.dll
+If,ExistFile,%i32%\propsys.dll,FileCopy,%i32%\propsys.dll,%t32%
+ReqB32,provthrd.dll
+ReqB32,psapi.dll
+ReqB32,PSHED.DLL
+ReqB32,QUTIL.DLL
+///ReqB32,rasadhlp.dll
+///ReqB32,rasapi32.dll
+///ReqB32,rasauto.dll
+///ReqB32,rascfg.dll
+///ReqB32,raschap.dll
+///ReqB32,rasctrs.dll
+///ReqB32,rasdiag.dll
+///ReqB32,rasdlg.dll
+///ReqB32,rasman.dll
+///ReqB32,rasmans.dll
+///ReqB32,rasmontr.dll
+///ReqB32,rasmxs.dll
+///ReqB32,rasppp.dll
+///ReqB32,rasser.dll
+///ReqB32,rastapi.dll
+///ReqB32,rastls.dll
+ReqB32,ReAgent.dll
+ReqB32,regapi.dll
+ReqB32,resutils.dll
+ReqB32,riched20.dll
+ReqB32,riched32.dll
+ReqB32,rnr20.dll
+ReqB32,RpcEpMap.dll
+ReqB32,rpcrt4.dll
+ReqB32,RpcRtRemote.dll
+ReqB32,rpcss.dll
+ReqB32,rsaenh.dll
+ReqB32,rtutils.dll
+ReqB32,sacsvr.dll
+ReqB32,samcli.dll
+ReqB32,samlib.dll
+ReqB32,samsrv.dll
+ReqB32,scecli.dll
+ReqB32,scesrv.dll
+ReqB32,scext.dll
+ReqB32,schannel.dll
+ReqB32,schedcli.dll
+ReqB32,scrobj.dll
+ReqB32,scrrun.dll
+ReqB32,sdhcinst.dll
+ReqB32,sechost.dll
+ReqB32,secur32.dll
+ReqB32,security.dll
+ReqB32,SensApi.dll
+ReqB32,services.exe
+ReqB32,setbcdlocale.dll
+ReqB32,setupapi.dll
+ReqB32,sfc.dll
+ReqB32,sfc_os.dll
+ReqB32,shell32.dll
+ReqB32,shlwapi.dll
+ReqB32,SLC.dll
+//ReqB32,SmiEngine.dll
+ReqB32,smss.exe
+ReqB32,snmpapi.dll
+ReqB32,spfileq.dll
+ReqB32,SPInf.dll
+///ReqB32,spp.dll
+///ReqB32,sppc.dll
+ReqB32,srcore.dll
+ReqB32,srhelper.dll
+ReqB32,srvcli.dll
+ReqB32,sspicli.dll
+ReqB32,sspisrv.dll
+//ReqB32,SSShim.dll
+ReqB32,sstpsvc.dll
+ReqB32,Storprop.dll
+ReqB32,streamci.dll
+ReqB32,svchost.exe
+ReqB32,swprv.dll
+ReqB32,sxproxy.dll
+ReqB32,sxs.dll
+ReqB32,sxshared.dll
+ReqB32,sxssrv.dll
+ReqB32,sysclass.dll
+ReqB32,sysntfy.dll
+ReqB32,syssetup.dll
+ReqB32,tapi32.dll
+ReqB32,taskmgr.exe
+ReqB32,tbs.dll
+ReqB32,tbssvc.dll
+///ReqB32,tcpipcfg.dll
+ReqB32,tcpmib.dll
+ReqB32,tdh.dll
+ReqB32,tsddd.dll
+ReqB32,ubpm.dll
+ReqB32,uexfat.dll
+ReqB32,ufat.dll
+ReqB32,ulib.dll
+ReqB32,umpnpmgr.dll
+///ReqB32,unattend.dll
+ReqB32,unattend.dll
+ReqB32,untfs.dll
+ReqB32,urlmon.dll
+ReqB32,user32.dll
+ReqB32,userenv.dll
+ReqB32,usp10.dll
+ReqB32,uxtheme.dll
+// taskmgr
+ReqB32,vdmdbg.dll
+///ReqB32,vds_ps.dll
+///ReqB32,vdsbas.dll
+///ReqB32,vdsdyn.dll
+///ReqB32,vdsutil.dll
+///ReqB32,vdsvd.dll
+ReqB32,version.dll
+///ReqB32,virtdisk.dll
+///ReqB32,vpnikeapi.dll
+///ReqB32,vss*.dll,NoRec
+///ReqB32,vsstrace.dll
+ReqB32,w32topl.dll
+//ReqB32,wbemcomn.dll
+ReqB32,wdigest.dll
+ReqB32,wdscore.dll
+ReqB32,webio.dll
+ReqB32,webservices.dll
+ReqB32,wer.dll
+ReqB32,werui.dll
+ReqB32,wevtapi.dll
+ReqB32,wevtsvc.dll
+ReqB32,wimgapi.dll
+ReqB32,win32k.sys
+ReqB32,winbrand.dll
+ReqB32,winhttp.dll
+If,ExistFile,%i32%\wininet.dll,FileCopy,%i32%\wininet.dll,%t32%
+ReqB32,wininit.exe
+ReqB32,winipsec.dll
+ReqB32,winlogon.exe
+ReqB32,winmm.dll
+ReqB32,winnsi.dll
+ReqB32,winpeshl.exe
+ReqB32,winspool.drv
+ReqB32,winsrv.dll
+ReqB32,winsta.dll
+ReqB32,wintrust.dll
+ReqB32,wkscli.dll
+ReqB32,wkssvc.dll
+ReqB32,Wldap32.dll
+///ReqB32,WmiMgmt.msc
+ReqB32,wmsgapi.dll
+ReqB32,wpeinit.exe
+ReqB32,wpeutil.dll
+ReqB32,wpeutil.exe
+ReqB32,ws2_32.dll
+ReqB32,wshelper.dll
+ReqB32,wship6.dll
+ReqB32,wshnetbs.dll
+ReqB32,WSHTCPIP.dll
+ReqB32,wsock32.dll
+ReqB32,wtsapi32.dll
+ReqB32,xmllite.dll
+//
+//If,ExistFile,%i32%\shdocvw.dll,FileCopy,%i32%\shdocvw.dll,%t32%
+ReqSys32,shdocvw.dll
+//If,ExistFile,%i32%\shellstyle.dll,FileCopy,%i32%\shellstyle.dll,%t32%
+ReqSys32,shellstyle.dll
+If,ExistFile,%i32%\shfolder.dll,FileCopy,%i32%\shfolder.dll,%t32%
+//If,ExistFile,%i32%\Shwebsvc.dll,FileCopy,%i32%\Shwebsvc.dll,%t32%
+ReqSys32,Shwebsvc.dll
+//
+//If,ExistFile,%i32%\ExplorerFrame.dll,FileCopy,%i32%\ExplorerFrame.dll,%t32%
+ReqSys32,ExplorerFrame.dll
+//If,ExistFile,%i32%\duser.dll,FileCopy,%i32%\duser.dll,%t32%
+ReqSys32,duser.dll
+ReqSys32,hotplug.dll
+ReqSys32,stdole2.tlb
+ReqSys32,stdole32.tlb
+ReqSys32,rundll32.exe
+ReqSys32,mscms.dll
+// added by - rpaz needed to allow tray icon control (Hide/show/notifications)
+ReqSys32,taskbarcpl.dll
+
+[minimum_KBD_NOTE]
+// Lancelot note: better to put followings to [minimum_KBD blabla.....] - I guess this was what rui paz looking for to improve..
+// - rpaz
+////If,%pScrollBox2%,Equal,UK,FileCopy,%b32%\KBDUK.DLL,%t32%
+////If,%pScrollBox2%,Equal,Japanese 101,FileCopy,%b32%\kbd101.dll,%t32%
+////If,%pScrollBox2%,Equal,Arabic,FileCopy,%b32%\KBDA2.DLL,%t32%
+////If,%pScrollBox2%,Equal,French,FileCopy,%b32%\KBDFR.DLL,%t32%
+////If,%pScrollBox2%,Equal,German,FileCopy,%b32%\KBDGR.DLL,%t32%
+////If,%pScrollBox2%,Equal,Potugese,FileCopy,%b32%\KBDPO.DLL,%t32%
+////If,%pScrollBox2%,Equal,Russian,FileCopy,%b32%\KBDRU.DLL,%t32%
+////If,%pScrollBox2%,Equal,Spanish,FileCopy,%b32%\KBDSP.DLL,%t32%
+////
+
+[CreateDesktopIniFilesSav]
+//--Vista - W2008 not checked - numbers taken from Win7 (Since Win7PE_SE only for Win7DVD sources ;))
+//--"Links" "Music" "Pictures" "Saved Games" "Videos" and some others missing because I do not have w7 at hand (for now)
+//ps: macro INTENTIONALLY not used for this case for NOW
+//--
+Set,%F%,%TargetProfilesBaseDir%\Users
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21813",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%F%#$q"
+//--
+Set,%F%,%TargetProfilesUserDir%\Favorites
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21796",Append
+TxtAddline,%W%,"IconResource=#$pSystemRoot#$p\System32\imageres.dll#$c-115",Append
+TxtAddline,%W%,"IconFile=#$pSystemRoot#$p\System32\shell32.dll",Append
+TxtAddline,%W%,"IconIndex=-173",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21786",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21782",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21787",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+//CreateDesktopIniFilesArchive ONLY FOR TESTS
+//Run,%scriptfile%,CreateDesktopIniFilesArchive
+
+[CreateDesktopIniFilesArchive]
+//Following lines MUST be added by relevant scripts NOT here - Written here ONLY for reference and tests
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21761",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\Accessibility"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21760",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21788",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\Tablet PC"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-62005",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Administrative Tools"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21762",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Games"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21773",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+//--
+Set,%F%,"%TargetProfilesUserDir%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Maintance"
+Set,%W%,%F%\desktop.ini
+If,Not,ExistDir,%F%,DirMake,%F%
+FileCreateBlank,%W%
+TxtAddline,%W%,[.ShellClassInfo],Append
+TxtAddline,%W%,"LocalizedResourceName=@#$pSystemRoot#$p\System32\shell32.dll#$c-21811",Append
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+A +H +S #$q%W%#$q"
+ShellExecute,Hide,%AttribexeFolder%Attrib.exe,"+S #$q%F%#$q"
+
+[EchoWarn10]
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+Echo,#1,Warn
+
+[History_Old]
+History016=ChrisR - add bootmgr.exe.mui in boot\%distlang for display language at startup
+History017=rpaz - Lancelot - adjust copy of KBD*.DLL files checkbox Add all Keyboards
+History017=rpaz   - added needed file to allow tray icon control (Hide/show/notifications)
+History018=ChrisR - add mscms.dll
+History019=Lancelot - no duplicate options in menu.lst
+History020=ChrisR - comment bootres.dll for Vista start bar for fast boot (instead win7 startup animation)
+History021=Dera's fix for distlang
+History022=Homes32 - Moved mount check for install.wim into 01-PreConfig
+History023=ChrisR - add blbres.dll, blb_ps.dll required for recovery environment in standard files copy
+History024=Homes32 - Added shortcut generation and config for Windows Recovery Env Tools, Cleaned up interface
+History025=JFX - sfc.dll - lz32.dll - crtdll.dll can be added to base files http://www.msfn.org/board/topic/149758-win7pe-se/page__view__findpost__p__956891
+History026=Lancelot - AdmTools_CheckBox hidden from interface - reported causing double shortcut appears along with mmc (+adding manual names....). (tip: better add any adm. tools through mmc plugin) // code cosmetics (quotes removed etc etc)
+History027=Dera - Add Windows Time service w32time
+History027b=ChrisR : retrieve Time Zone Information from install.wim in offline system hive, for system locale auto
+History028=Lancelot IniVariables added
+History029=ChrisR - Font control panel - set the registry permission on W32Time service - ifsutil.dll dependence of xcopy,...
+History030=ChrisR - Additional Font (from Install.wim) commented, Preferred an additional Fonts plugin (Reason: reg font entries have localized names) http://TheOven.org/index.php?topic=206
+History031=ChrisR - Reorganization of sections - Improved echo messages - Copy only used bootsrc mui files for standard file copy.
+History032=Lancelot - minor workarounds for general compatibility
+History032b=2aCD - add utildll.dll for Taskmanager
+History033=Lancelot - SetAcl Success checks - warn if failure
+History034=2aCD - reduce build warnings for overwrite regkeys
+History035=ChrisR - NoWarnROW implemented
+History037=ChrisR - Added support for locale Auto.
+History038=ChrisR - Mui for bootres.dll added or removed (win7 startup animation - Vista start bar)
+History039=ChrisR - renamed Win7PESE folder
+History040=ChrisR - Process Locale review and divided in keyboard and time zone. Called "HostOS Import Manager plugin" and TimeZone plugin
+History041=ChrisR - Following my inexplicable suspenssion of reboot.pro (:, the link is logically deleted.
+History060=Lancelot updated v060
+History062=Macro Library updated v062 - Date:2016.03.29
+History063=Lancelot updated v063 - Date:2016.04.03
+History064=Lancelot updated v064 - Date:2016.11.09
+
+[Cache_SCD_Info_Additional_Plugin]
+//IniRead,%ScriptFile%,Main,Selected,%t%
+//If,%t%,Equal,True,Begi-n
+Run,%api%,Cache_SCD_Info_Additional_Plugin_ML,#1,#2,#3,#4,#5,#6,#7,#8,#9
+//-
+IniWrite,%ProjectTemp%\%SFName%_Unique.ini,Unique,%Plugin_FName_Sub%_|_Custom_CheckBox,%Custom_CheckBox%
+If,%Custom_CheckBox%,Equal,True,Begin
+Call,RetrieveFolderUniqueID,%Custom_FileBox%
+IniWrite,%ProjectTemp%\%SFName%_Unique.ini,Unique,%Plugin_FName_Sub%_|_Custom_CheckBox_True_RetrieveFolderUniqueID,%RetrieveFolderUniqueID%
+If,%RetrieveFolderUniqueID%,Equal,1,IniWrite,%ProjectTemp%\%SFName%_Unique.ini,Unique,%Plugin_FName_Sub%_|_Custom_CheckBox_True_RetrieveFolderUniqueID,"%RetrieveFolderUniqueID% : Directory Not Exists"
+If,%RetrieveFolderUniqueID%,Equal,2,IniWrite,%ProjectTemp%\%SFName%_Unique.ini,Unique,%Plugin_FName_Sub%_|_Custom_CheckBox_True_RetrieveFolderUniqueID,"%RetrieveFolderUniqueID% : Directory exists but empty"
+End
+//-
+Echo,"Cache_SCD_Info_Additional_Plugin - Finish - %Plugin_FName%"
+//En-d
+
+[AuthorEncoded]
+authorlogo.jpg=3186,4250
+Copy.jpg=2801,3735
+Logo=Copy.jpg
+
+[EncodedFile-AuthorEncoded-authorlogo.jpg]
+lines=1
+0=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
+1=6Q0j/KUGIYbwjJf+vJUF0qZW8E1Cbehl44j8p/aJiAyBdhT/wLWgfSDnic40ssLcnIL8rJT8/XyypIZxgFIwuE8kBoVR7s8vIysg4MTABMRQbu9CEv8QEAAAACAAAAKQAAACUMAAAAAAAAAQAAAAAAAAAAAAAA
+
+[EncodedFile-AuthorEncoded-Copy.jpg]
+lines=0
+0=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
+
+[InterfaceEncoded]
+opendir.bmp=571,762
+DoubleJDesignRavenna3dArrowDown0016016.bmp=622,830
+BokehliciaCaptivaSoftwareupload0016016.bmp=676,902
+AmperossQetto2Move0016016.bmp=893,1191
+
+[EncodedFile-InterfaceEncoded-opendir.bmp]
+lines=0
+0=eJyVkt1LU3EYx382esMuBFEKE8GLLL0IbyYhpEUI4aKytilTFN1xOrvxohpI9/0FlYESXUR2EXmxi4S9hYF4IZhOSdZMzJdtx+HwvO1sh2/P8cyxYFh9+TzPxXm+v+9z+J1z847ZxA5lprpMVZarEnbeGNC8vNSoI+E/5Z6YZs++Mk+QPTnkaaiAo4ee0LVPEcN/4tViTRjuNB7Jeh/cAxfPcEnNtY8hAW4ZwwqGVbCxL3k/D5zxC71x9AjoTsGRgG0jbY2K1siBfV2ybyjd2xkHr7HHIcO/CZh8ApdEfwIDKXASnAr6BDh4dG5mbVHJui727ar0VuQ/924tCtyNoTwgGFQGdZyxrHMfLgUuFYMShg4wIOrhVTNb3zVYdtCbQD+vQ4sqQwKhH/cLFQGx1C+W+EQWlC/Nyw0LqRUVt7fQtZPDvgtrDB2JHD1JnJrl8/dpjqjLipb3P9zG/Ti+qQirWJY1Yi0L06pW6F+QtJZf+grCEkOYrus5q/iJ06tgiwoLZ+0v3vyRnwEdoailtG6ufllVN1FXO36x6Pcd8wYogXJOrqDsB66+rTdPtV7/aGmcar0weeX4f6N2srrpQ/ON6Xvt3i7q9e+bz74uvqVQt7wPOn0c9b86DbV9tjlnR6n/o39kzmNQdPoblHVTL3ic484vSM1LySzSS8otYBgFIw6YMUPoD4zY5WddWriPgQkAk7cIYWOapDwBAAAAAgAAACcAAADwAQAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFolders]
+Icons
+
+[Icons]
+msfn_modrica.ico=712,950
+TheOven.ico=947,1263
+
+[EncodedFile-Icons-msfn_modrica.ico]
+lines=0
+0=eJztkT1ME2EYx/+PSMUPlCriFyitXxQVrfjBCWo9FfVEkUrBnqLCcQicmDQNU0NiSMNAmg6kYSAXBpNjIDkGkjKQ3GRSB5I6kNSBpAwOHW9kxOdAHI1x5n95796P532e3/85gPgpKwO/S9BfDFQAqOHBW6jG5v7ftL6+DmtcQG7RgNbmgTmWQEqVsfYzg/y8BnNOQ1QVYS/r0EdE6NNBZL8EEe/2If81DmNYQ2Y+hvSkjPxqBokRGfGQhPwPE+aIH+a4hEREQmaG46Y4z0oa0S4/jCEZ+oAEc0ZGdk5H4VuKYwWYSYVzScjN8vmQgliXB4XvBmIcmx7zIzurwJoQEQ35EI8wy2IMufkojFEB6WQCa6sW8otx2MxiM4MW9qOwbDI/52DmaLfA+XTYSymkBhSuEUR+IQo9oiE3E2T/IoyIguw010uKyDKfNcX87Nvm3GuraWhcOxrysEeDvQaZPQHTqT8mMJuADPMZwzLfZ3+jftjcS3vF4nse9uODzfXjqg+FJfbNHLkFg1mcfjj1OQ/3wUoKzCEjM+nkYs/MYvE8PeF8pb/+021t65/k7XX9UbUX3jbP00+b+iiVVnjv7d7/qHKgo6MuFKobelzaW+N/UtnXHvoQDu/oq68/52o++EB7d6D9os8XDnc1PXQ13zhP1PqSaOdRHqqruayE6LLK8zDvq8pgrUh08hXRG45pPaMMvq4lun2I6LnqnAfcLbzec5ZI2EfU1MfrW0RXDhNdOE507FLAfbOBtnTiqhhwy1WN77s3dDp4906gs7ylqmFDjY1v97441XOtfNf133p2pLgHRZ3uLd3vL8Jn+v/WOXd/ATGH6nB4nBPILU7Li8/NTynKTE7Uy0zOZxgFIwnUsULoCibs8kFbs+8zMAEAw7kJvLaP9h8BAAAAAgAAACwAAAB4AgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-Icons-TheOven.ico]
+lines=0
+0=eJyNk39M1GUcx7+utv5o6jkDbqvJxZGiCLhqMErg7oJLoJMYIGfdiVOYt8kfbR1iEnmhxw9JECj5oekVingeLER2Aue+F2eOGDlbWbSg8Y8ic2HsXGRz31ff+zZYv9z6PHs/P977vJ/n+TyfzyMIy+SmUglyrxFsjwtCuCAIMTJkSmb+5P+vTUxM6JqdToen9TgXO+rwfVjDhYYDVBbnOkZHR3WP0s3eua3r2F8uNm6MRtykYcK0ie9a7Eg3biCNjzN/6Rw9lbvpam9w/NeZVfl5XDU8h1SVC3tykfa+xt0KI5O9HUgzd5Dm5pAWfmW8uwn7G+lL95AePtQNnOjAnabG+b6WrKOrSD+iYvqgDqpNzL+bwc1qMz/0tTE15uX+3AyDZ1pY1A8HBkWLJRzt8SeJGFOjHlWzVp5PlxvAshVpRzYUy2NFNsGdrzBtS6e/Io+WuhrlDiXdVlKdy4kQwxRtmHs5vsqXoHQbfLADDmyX9Wao2gkV8rp6Fw+adnMsO0sM6VNcSUQPRbHh6gY0gWdRn1Ux5doLR8ug3g4XaqG8FM7Xydx+8DbS1bCFXVujlRi2nEkjcySL1EAqib4k1vnWcepTM5J4HqnzI2isAc9JOQcXkbrakb4awNipJdwfRlF9oZh5Uo8lYCW5L4nYc+uJuxRHa3cx0uyPMHOT21/30+Yqot1dwqi/ldNdb6HuVSmxbj79MqmOBPHtMTux9c/Q3GkjrzGFu7OTSL/fJ3Ctk8jGlUQFtKz5UoO6L4ww7ypFu6jPLzPpCvpyMH6crORXmvoJ6d49FhaCxNSuJi2gwxAwkCgmEj8Sz9phLZFXIlF/HsHmpueVNzTXvi5q5LxLwXmkW7eQJie5/v0Vnjq0ArN/OwW+AjKHMzF4DSRdTiZ+KIGozyKx7tu2VItF+wod3W8W8CCkDwZZCP6MrS2X9c1PE+eKJX8oj0JfIaZBExneV8k4krJUQ4s20nZIvGy18o3Lpewh16YSR31PGQnyHqF3Kv6ihLRjL2J7Z8+//lLvWZdurKdJ/Lb2Pfr1BnrTMxiwWGjNMbLm4GqMn6TwwuEYsdxZ9sh/GLJTNXbHtROHxety/t2lBUqMbo9bF8I/fX9Z6dH7n/DoHY959EIIy/4C4e9wyPDL/HQIsu9vOR79H7+WMMh4nOMOyUj1L0vN08tMzmcYBSMO1LFA6Axm7PKWuxd/ZGACAAyHB6XxvDdrAQAAAAIAAAAnAAAAaAMAAAAAAAABAAAAAAAAAAAAAAA
+
+[DownloadXXX]
+Call,DownloadXQ
+
+[UploadXXX]
+Call,UploadXQ
+
+[EncodedFile-InterfaceEncoded-DoubleJDesignRavenna3dArrowDown0016016.bmp]
+lines=0
+0=eJzNk09Ik2Ecxw06BF2KqG5ih1EgYZZu7+v7vnu3d++2MpelRFHgQZEaJLVIXSxrW4Wauf7Nwha2rQ7dOgT9IQT1EkQHi+hSHfRSUZrMcp389PjSoUib3vrB9/I8fD78fr+Hxwi0LS+yyi6ySWSVyGqRZUUl1rnr1/3vBfy3+TTxkabuAzx4dp+lsu/G31LRXIrjaCmeVjtfpj4v2jH+YQwpWIYc3orctgUptJkT/UcWxc/1rLXYqYpKqGcklEglcns5DuF48uLhPx2TUxOYIRWlU8PZraOdU1GjMsop4RO9+DucfM1NzuvIfctR3Wai9hq4rvrREybOCy608xpqrAqlQzhObiOSbv2Ln8nPsDvsZ33dSoob1mE7XIIsetAvCUePG63TiRpXUE47rJ0MvRz8wzH9fZqR0SHSj1LUhn2s8a6gMi7hTm7HddmLftHA2aVT2mJjY3Mx7naJ/I/8vHN0Zc5avKNLw+gP4O7bgeuKD73XQyDqI5QM8ur96IJ7jKUiFi8nDDwDezBuCsf1amsnA4Opgm8Y7jtu8UrSj3lnL+btOjypXRg3dpIdThfkjyWCFu9M1eC7tx/vXeFIC8etWjKL4IPdTRZfFqtAvua1PJ5sPWamnuxIpiD/9Plj4ukIh3oaqGk3KG+0sWHfWhp7DvJm7PWS/9FcZmdnF+R+AlbU23p4nNNyyS9Nykn1ckktzkzPC0osS83LSzROcSwqyi93yS/PMzAwNAMivaTcAoZRMPxAGQuEZmPCLu9y8YwcAxMAHjMRfb+2diEBAAAAAgAAAEQAAAAGAgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-InterfaceEncoded-BokehliciaCaptivaSoftwareupload0016016.bmp]
+lines=0
+0=eJytU21LWmEYbrAfsP0De4H2pRcqRq+0RllUZkav1O+YIH2JPvUhKKJfUE3aaCNQQR3pYWDTPCpBMKUxSczjZDB0Q8UPV/d9L0tdg33YAxfn5nq5n+c85z4vDa8e18l6TnhGeEJ4SnhUpxP+xa1euQD8V5RKJeTzeeRyOWSzWQHXzLH2t1yxWEQikYDb7cXu7iHW1/exuron4Jo51tjD3tqsw3GC+fn36O39hJ6eh8Eae9hb2SMYjGB42Iu+Pv8/gb2cKb+v2fwGAwOBGvhpTzfhg9S1utn8FuW7MplOMDQUwMhIgHrfY3Mzio2Nz1Uce9jLGc5mMhni/WhuPoROt4/6+td3ODpKwGqNV3HsYS9nOBuLfUFLyzG6ulzEnVXB4/kOpzPzB89eznD24iKKxkar9NPrg7fwYG7OBp/vGxRFw+ysDaOjnjudvZzhbDR6iY4OO/V0YHJSxdiYiq2trygUSri+zuLq6ofU29tx0djT2WmTDGdTqbRw3d1O+jYfMTGhYno6TL1zKC+uTaawaDrdHtrajiWjaWn5BgsLfhgMIZoPL6amQlKvrJzT/gUkkwUsL58Lx2hoOJAnZ8rzbLF4YTSG6d18dAY3nfMUg4MK7RmULGu/oUqea4tFqZi/JGZmwnJGgyEg8zU+fip3otcrdJcRusMQ2tt5vl3iVdVU1T9gt6exuMi+exiNZ2htfYempgNBf78LS0sRsPehf1DTfoq2sxPH2tolnTEm4Jo51tLpX1XZG70Y6I54nNNyys9OzcjJTM5MdE4sKMksSwzOTyspTyxKLS3IyU9MMTAwNAMivaTcAoZRMPxAGQuEtmHCLs9kcFmVgQkAJ9URXc7wHxQBAAAAAgAAAEQAAAA8AgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[CompareEditXXX]
+Call,CompareEdit
+
+[EncodedFile-InterfaceEncoded-AmperossQetto2Move0016016.bmp]
+lines=0
+0=eJxtk1lIVFEYxw16agEVzTRncRtt0cx0NCu0QlsgyyCih7Cgh6KFNgQzSsqnFohUEm3FlqmsVGxxxoxSyYkpTcctsiKXtCZ1mPXee878++5o4YMf/DjfnXN+//sdmLt2s3amj7e0RAzhO8kMH7XPv/KfPcF0NXd7RXRg3ufCoDMD+nkFQ8Z5BYOTDBmDCgYNgXlfCudsq4yZzg3I7ToSfMHmVJQBilLi6pT1X097IZdsroBc87GpblB+zwHVNUBJ50JLBAQUSVhQIkJB/X+KBYQWCd4s1XUgKL/3kOz6HTYpQ4scbq9fLsL/ooAV50ahueKE8oYI1TWBoLVcgLKMKJWf6T1XHILv8WaVothyMlwHqG+KmHVJxKHbFnjs49j5zAnf2xyqexLC74hewm6JdE6AmjLDH1BGseVU2E17VeRjIIBmPFhhASQnnneK0Fy2IYaIKHEi9C6DXxmDWscQeY+yKkREPpLfaa+JuO/Wh5C/9bEd4C7INWyxw/bbCmnUiuZeK9bpHDhfY0FkuQvKSo6ohxKiqoCIu+76qEp3XUQtkFDL0DYm2x4863bjdAdwthfY0QKsMYjgYNDTAQVlqJ9yLHwBaB66DdFPhbol9TRLDUPsS4bWMQ+sYw6kVjuwhmbaXzuOvTVWVJtpPkqpbx/DYp0b0a+AmGrBsKhWMMS+AWL1dDcipZGhctiDHSYRbRY3OSIhYdwlYaI4cppdCGsAFr8Q6uNeiU/iacalrxkSyI1ropxGCXEtDGs/cmxq50hrlvCkx+G9W/F3DzQNDLITpxerEhrFE0ntwLK3DInvGLTvGZI/0BytHInka0wce9tpDo+E0gEPwuncUkJ2ljeJuUlGzNcamS3pA8iVkEJO6ieOVR2EmXpaN3Zz7PviQbyJPMrXfgSSjcy+2mQPlv+DaR3CrrSvQGon0caxmry0Lo508tJ7KIf6BLqHvLeyC0j/RpiFnKnfQEa3sDujj1syR4CMn0AmsZ76DSMTvfe3X8C6Pv4n0yzsme4bzO6yB2f1s6NZ/VyX9YPVZU+yhcjqlx5kD9FetyNkqvMXP3mcf3ick3XMLUgtyi8uDkwtKck38s0vSzUwMDQDIr2k3AKGUTDMgRkLhFZixi4vra37hIEJABkJC8Gkai7oAQAAAAIAAAA3AAAAIgMAAAAAAAABAAAAAAAAAAAAAAA
+

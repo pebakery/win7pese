@@ -1,0 +1,262 @@
+[Main]
+Title=Context Menu
+Type=Plugin
+Author=ChrisR
+Description=(NT6x) Context Menu - Right click pop-up menu
+Credits=Ludovici, ChrisR
+Version=006
+Download_Level=1
+Level=3
+Selected=False
+Mandatory=False
+NoWarning=False
+Contact=http://TheOven.org
+Date=2017.02.16
+Depend=
+Disable=
+Web1=http://w7pese.cwcodes.net/Projects/Win7PESE/Tweaks/ContextMenu.script
+Web2=http://yomi.cwcodes.net/Yomi/TweaksY/ContextMenu.script
+CertifiedBy=
+Certification=
+HistoryNotes01=
+History002=ChrisR - Require_File replaced by Require_FileQ and reg_add replaced by RegWrite,HKLM(faster)
+History003=ChrisR - Regnames improvement for faster building
+History004=ChrisR - Fix regedit Context Menu command - Date:2011.12.05
+History005=Lancelot - Added DU Buttons - Date:2016.01.29
+History006=Lancelot - Add Compare button - Date:2017.02.16
+
+[Variables]
+%ProgramTitle%="Context Menu"
+%ProgramEXE%=
+%ProgramFolder%=
+
+[Interface]
+pTextLabel1="Context Menu",1,1,20,5,90,18,8,Bold
+pTextLabel2=Name,1,1,204,5,42,18,8,Bold
+pCheckBox1="Add Registry Editor",1,3,17,26,131,18,False
+pTextBox1=,1,0,182,25,200,21,"Registry Editor"
+pCheckBox2="Add Control Panel",1,3,18,46,123,18,True
+pTextBox2=,1,0,182,45,200,21,"Control Panel"
+pCheckBox3="Add Device Manager",1,3,18,66,135,18,True
+pCheckBox4="Add System Properties",1,3,18,86,143,18,False
+pTextBox4=,1,0,184,85,200,21,"System Properties"
+pCheckBox5="Add Administrative Tools",1,3,18,106,155,18,True
+pTextBox5=,1,0,184,105,200,21,"Administrative Tools"
+pCheckBox6="Add Network Connections",1,3,18,126,161,18,True
+pTextBox6=,1,0,184,125,200,21,"Network Connections"
+pCheckBox7="Add Power Options",1,3,18,146,128,18,True
+pTextBox7=,1,0,184,145,200,21,"Power Options"
+pCheckBox9="Add Encrypt-Decrypt (*Beta)",1,3,18,168,168,18,False
+pCheckBox21="Copy To Folder",1,3,18,187,104,18,False
+pCheckBox22="Move To Folder",1,3,18,206,103,18,False
+pBevel1=pBevel1,1,12,8,21,391,208
+pTextLabel11="Recycle Bin Context Menu",1,1,20,232,151,18,8,Bold
+pTextLabel12=Name,1,1,203,232,46,18,8,Bold
+pCheckBox11="Add Disk Cleanup",1,3,18,254,117,18,True
+pTextBox11=,1,0,200,252,200,18,"Disk Cleanup"
+pCheckBox12="Add Clear System Temp",1,3,18,274,148,18,True
+pTextBox12=,1,0,200,272,200,18,"Clear System Temp"
+pBevel10=pBevel10,1,12,8,248,414,49
+pCheckBox31=,1,3,18,318,19,18,False
+pTextBox31="Path to exe",1,0,43,318,190,21,"mmc.exe#$sServices.msc"
+pTextBox32="Path to icon",1,0,240,318,190,21,Shell32.dll#$c71
+pTextBox33=Name,1,0,436,318,120,21,services
+pCheckBox41=,1,3,18,338,19,18,False
+pTextBox41=,1,0,43,337,190,21,
+pTextBox42=,1,0,240,337,190,21,
+pTextBox43=,1,0,436,337,120,21,
+pWebLabel2="Plugin Page",1,10,338,4,55,18,http://TheOven.org/index.php?board=9
+Button_Download=,1,8,403,21,24,24,DownloadXXX,DoubleJDesignRavenna3dArrowDown0016016.bmp,False,False,_DownloadXXX_,False,"__DOWNLOAD Plugin"
+Button_Upload=,1,8,403,-1,24,24,UploadXXX,BokehliciaCaptivaSoftwareupload0016016.bmp,False,False,_UploadXXX_,False,"__UPLOAD Plugin (Admins Only)"
+Button_CompareEdit=,1,8,426,-1,24,24,CompareEditXXX,AmperossQetto2Move0016016.bmp,False,False,_CompareEditXXX_,False,"__DOWNLOAD and Compare with an Editor"
+
+[Process]
+If,Not,%OSFamily%,Equal,NT6,Exit,"%ScriptTitle% Designed for NT6x projects only"
+Echo,"Processing %ProgramTitle% ..."
+//ReadENV
+RegHiveLoad,Tmp_Software,%RegSoftware%
+// Add Registry Editor
+If,%pCheckBox1%,Equal,True,Begin
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Regedit,,%pTextBox1%
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\Regedit,Icon,regedit.exe
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Regedit\command,,regedit.exe
+End
+// Control Panel
+If,%pCheckBox2%,Equal,True,Begin
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Control Panel",,%pTextBox2%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Control Panel",Icon,control.exe
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Control Panel\command",,"rundll32.exe#$sshell32.dll#$cControl_RunDLL"
+End
+// Device Manager
+If,%pCheckBox3%,Equal,True,Begin
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\DevMgr,,"@#$pwindir#$p\system32\devmgr.dll#$c-4"
+RegWrite,HKLM,0x4,Tmp_Software\Classes\Directory\Background\shell\DevMgr,SuppressionPolicy,0x4000003c
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\DevMgr,Icon,mmc.exe
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\DevMgr\command,,"#$pwindir#$p\system32\mmc.exe#$s/s#$s#$pwindir#$p\system32\devmgmt.msc"
+End
+// Add System Properties
+If,%pCheckBox4%,equal,True,Begin
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\System Properties",,%pTextBox4%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\System Properties",Icon,sysdm.cpl
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\System Properties\command",,"control#$ssysdm.cpl"
+End
+// Add Administrative Tools
+If,%pCheckBox5%,Equal,True,If,ExistDir,"%TargetDir%\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools",Begin
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Administrative Tools",,%pTextBox5%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Administrative Tools",Icon,"Shell32.dll#$c110"
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Administrative Tools\command",,"control#$sadmintools"
+End
+// Add Network Connections
+If,%pCheckBox6%,Equal,True,Begin
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Network Connections",,%pTextBox6%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Network Connections",Icon,ncpa.cpl
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Network Connections\command",,"control#$sncpa.cpl"
+End
+// Add Power Options
+If,%pCheckBox7%,Equal,True,Begin
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Power Options",,%pTextBox7%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Power Options",Icon,powercfg.cpl
+RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Power Options\command",,"control#$spowercfg.cpl"
+End
+// Add Task Manager
+//If,%pCheckBox8%,Equal,True,Begin
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Task Manager",,%pTextBox8%
+//RegWrite,HKLM,0x2,"Tmp_Software\Classes\Directory\Background\shell\Task Manager",Icon,taskmgr.exe
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Task Manager\command",,taskmgr.exe
+//End
+// Add Disk Cleanup
+If,%pCheckBox11%,Equal,True,Begin
+If,ExistFile,%InstallSRC%\Windows\System32\cleanmgr.exe,FileCopy,%InstallSRC%\Windows\System32\cleanmgr.exe,%TargetDir%\Windows\System32\
+If,ExistFile,%InstallSRC%\Windows\System32\%DistLang%\cleanmgr.exe.mui,FileCopy,%InstallSRC%\Windows\System32\%DistLang%\cleanmgr.exe.mui,%TargetDir%\Windows\System32\%DistLang%\
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Disk Cleanup",,%pTextBox11%
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Disk Cleanup",Icon,"#$pSystemRoot#$p\System32\cleanmgr.exe"
+RegWrite,HKLM,0x2,"Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Disk Cleanup\command",,"#$pSystemRoot#$p\System32\cleanmgr.exe"
+End
+// Add Clear System Temp
+If,%pCheckBox12%,Equal,True,Begin
+RegWrite,HKLM,0x1,Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Temp,,%pTextBox12%
+RegWrite,HKLM,0x2,Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Temp,Icon,"Shell32.dll#$c102"
+RegWrite,HKLM,0x2,Tmp_Software\Classes\CLSID\{645FF040-5081-101B-9F08-00AA002F954E}\shell\Temp\Command,,"Cmd.exe /c #$pSystemDrive#$p && cd #$pSystemRoot#$p\Temp\ && del *.* /f /q && (for /d #$p#$pa in (*) do rd #$q#$p#$pa#$q /q /s) && cd #$ptemp#$p && del *.* /f /q && (for /d #$p#$pa in (*) do rd #$q#$p#$pa#$q /q /s)"
+End
+// Custom 1
+If,%pCheckBox31%,Equal,True,Begin
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Custom1,,%pTextBox33%
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\Custom1,Icon,%pTextBox32%
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Custom1\command,,%pTextBox31%
+End
+// Custom 2
+If,%pCheckBox41%,Equal,True,Begin
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Custom2,,%pTextBox43%
+RegWrite,HKLM,0x2,Tmp_Software\Classes\Directory\Background\shell\Custom2,Icon,%pTextBox42%
+RegWrite,HKLM,0x1,Tmp_Software\Classes\Directory\Background\shell\Custom2\command,,%pTextBox41%
+End
+//--
+//// Add change Screen Resolution
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Screen Resolution",,"Screen Resolution"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Screen Resolution\command",,"control#$sdesk.cpl#$c#$c@display"
+//// Add change Screensaver
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Screen Saver",,"Change Screen Saver"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Screen Saver\command",,"control#$sdesk.cpl#$c#$c1"
+//// Add change Wallpaper
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Wallpaper",,"Change Wallpaper"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Wallpaper\command",,"control#$sdesk.cpl#$c#$c@desktop"
+//// Add Desktop Icons Settings
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Desktop Icons Settings",,"Desktop Icons Settings"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Desktop Icons Settings\command",,"control#$sdesk.cpl#$c#$c0"
+//// Add DPI Scaling
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\DPI Scaling",,"DPI Scaling"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\DPI Scaling\command",,dpiscaling
+//// Add Programs and Features
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Programs and Features",,"Programs and Features"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Programs and Features\command",,"control#$sappwiz.cpl"
+//// Add Folder Options
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Folder Options",,"Folder Options"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Folder Options\command",,"control#$sfolders"
+//// Add Change Date and Time
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Date / Time",,"Change Date / Time"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\Change Date / Time\command",,"control#$stimedate.cpl"
+//// Add User Accounts
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\User Accounts",,"User Accounts"
+//RegWrite,HKLM,0x1,"Tmp_Software\Classes\Directory\Background\shell\User Accounts\command",,"Control#$suserpasswords"
+//--
+RegHiveUnLoad,Tmp_Software
+//--
+// Copy To Folder
+If,%pCheckBox21%,Equal,True,Begin
+RegAddBoot,HKCR,0x1,AllFilesystemObjects\shellex\ContextMenuHandlers\CopyToMenu,,{C2FBB630-2971-11D1-A18C-00C04FD75D13}
+RegHiveLoad,Tmp_software,%RegSoftware%
+RegWrite,HKLM,0x0,Tmp_software\Classes\AllFilesystemObjects\shellex\ContextMenuHandlers\{C2FBB630-2971-11D1-A18C-00C04FD75D13}
+RegWrite,HKLM,0x0,Tmp_software\Classes\AllFilesystemObjects\shellex\ContextMenuHandlers\{C2FBB631-2971-11D1-A18C-00C04FD75D13}
+RegHiveUnLoad,Tmp_software
+End
+// Move To Folder
+If,%pCheckBox22%,Equal,True,Begin
+RegAddBoot,HKCR,0x1,AllFilesystemObjects\shellex\ContextMenuHandlers\MoveToMenu,,{C2FBB631-2971-11D1-A18C-00C04FD75D13}
+End
+//--
+// Add Encrypt-Decrypt
+If,%pCheckBox9%,Equal,True,Run,%ScriptFile%,Encrypt
+//--
+
+[Encrypt]
+// Add Encrypt / Decrypt in ContextMenu
+RegHiveLoad,Tmp_Default,%RegDefault%
+RegWrite,HKLM,0x4,Tmp_Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced,EncryptionContextMenu,1
+RegHiveUnLoad,Tmp_Default
+// encryption
+Require_FileQ,CIPHER.EXE
+//installer for cryptographie
+Require_FileQ,CMICRYPTINSTALL.DLL
+// Encryption
+Require_FileQ,WINSHFHC.dll
+RegHiveLoad,Tmp_Software,%RegSoftware%
+RegWrite,HKLM,0x0,"Tmp_Software\Classes\CLSID\{00B01B2E-B1FE-33A6-AD40-57DE8358DC7D}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}"
+RegWrite,HKLM,0x1,Tmp_Software\Classes\CLSID\{00B01B2E-B1FE-33A6-AD40-57DE8358DC7D}\InprocServer32\2.0.0.0,RuntimeVersion,v2.0.50727
+RegWrite,HKLM,0x1,Tmp_Software\Classes\CLSID\{00B01B2E-B1FE-33A6-AD40-57DE8358DC7D}\InprocServer32\2.0.0.0,Assembly,"mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+RegWrite,HKLM,0x1,Tmp_Software\Classes\CLSID\{00B01B2E-B1FE-33A6-AD40-57DE8358DC7D}\InprocServer32\2.0.0.0,Class,System.Security.Cryptography.HMACSHA1
+RegWrite,HKLM,0x1,Tmp_Software\Classes\CLSID\{00B01B2E-B1FE-33A6-AD40-57DE8358DC7D}\ProgId,,System.Security.Cryptography.HMACSHA1
+RegHiveUnLoad,Tmp_Software
+
+[AuthorEncoded]
+ContextMenu.jpg=1730,2307
+Logo=ContextMenu.jpg
+
+[EncodedFile-AuthorEncoded-ContextMenu.jpg]
+lines=0
+0=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
+
+[DownloadXXX]
+Call,DownloadXQ
+Run,%ScriptFile%,Settings_Default
+If,ExistSection,%ScriptFile%,Settings_Default_%ProjectName%,Run,%ScriptFile%,Settings_Default_%ProjectName%
+System,RefreshInterface
+
+[UploadXXX]
+Call,UploadXMultiQ
+
+[Settings_Default]
+IniWrite,%ScriptFile%,Main,Selected,False
+
+[Settings_Default_Win7PESE]
+IniWrite,%ScriptFile%,Main,Selected,False
+
+[InterfaceEncoded]
+DoubleJDesignRavenna3dArrowDown0016016.bmp=622,830
+BokehliciaCaptivaSoftwareupload0016016.bmp=676,902
+AmperossQetto2Move0016016.bmp=893,1191
+
+[EncodedFile-InterfaceEncoded-DoubleJDesignRavenna3dArrowDown0016016.bmp]
+lines=0
+0=eJzNk09Ik2Ecxw06BF2KqG5ih1EgYZZu7+v7vnu3d++2MpelRFHgQZEaJLVIXSxrW4Wauf7Nwha2rQ7dOgT9IQT1EkQHi+hSHfRSUZrMcp389PjSoUib3vrB9/I8fD78fr+Hxwi0LS+yyi6ySWSVyGqRZUUl1rnr1/3vBfy3+TTxkabuAzx4dp+lsu/G31LRXIrjaCmeVjtfpj4v2jH+YQwpWIYc3orctgUptJkT/UcWxc/1rLXYqYpKqGcklEglcns5DuF48uLhPx2TUxOYIRWlU8PZraOdU1GjMsop4RO9+DucfM1NzuvIfctR3Wai9hq4rvrREybOCy608xpqrAqlQzhObiOSbv2Ln8nPsDvsZ33dSoob1mE7XIIsetAvCUePG63TiRpXUE47rJ0MvRz8wzH9fZqR0SHSj1LUhn2s8a6gMi7hTm7HddmLftHA2aVT2mJjY3Mx7naJ/I/8vHN0Zc5avKNLw+gP4O7bgeuKD73XQyDqI5QM8ur96IJ7jKUiFi8nDDwDezBuCsf1amsnA4Opgm8Y7jtu8UrSj3lnL+btOjypXRg3dpIdThfkjyWCFu9M1eC7tx/vXeFIC8etWjKL4IPdTRZfFqtAvua1PJ5sPWamnuxIpiD/9Plj4ukIh3oaqGk3KG+0sWHfWhp7DvJm7PWS/9FcZmdnF+R+AlbU23p4nNNyyS9Nykn1ckktzkzPC0osS83LSzROcSwqyi93yS/PMzAwNAMivaTcAoZRMPxAGQuEZmPCLu9y8YwcAxMAHjMRfb+2diEBAAAAAgAAAEQAAAAGAgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[EncodedFile-InterfaceEncoded-BokehliciaCaptivaSoftwareupload0016016.bmp]
+lines=0
+0=eJytU21LWmEYbrAfsP0De4H2pRcqRq+0RllUZkav1O+YIH2JPvUhKKJfUE3aaCNQQR3pYWDTPCpBMKUxSczjZDB0Q8UPV/d9L0tdg33YAxfn5nq5n+c85z4vDa8e18l6TnhGeEJ4SnhUpxP+xa1euQD8V5RKJeTzeeRyOWSzWQHXzLH2t1yxWEQikYDb7cXu7iHW1/exuron4Jo51tjD3tqsw3GC+fn36O39hJ6eh8Eae9hb2SMYjGB42Iu+Pv8/gb2cKb+v2fwGAwOBGvhpTzfhg9S1utn8FuW7MplOMDQUwMhIgHrfY3Mzio2Nz1Uce9jLGc5mMhni/WhuPoROt4/6+td3ODpKwGqNV3HsYS9nOBuLfUFLyzG6ulzEnVXB4/kOpzPzB89eznD24iKKxkar9NPrg7fwYG7OBp/vGxRFw+ysDaOjnjudvZzhbDR6iY4OO/V0YHJSxdiYiq2trygUSri+zuLq6ofU29tx0djT2WmTDGdTqbRw3d1O+jYfMTGhYno6TL1zKC+uTaawaDrdHtrajiWjaWn5BgsLfhgMIZoPL6amQlKvrJzT/gUkkwUsL58Lx2hoOJAnZ8rzbLF4YTSG6d18dAY3nfMUg4MK7RmULGu/oUqea4tFqZi/JGZmwnJGgyEg8zU+fip3otcrdJcRusMQ2tt5vl3iVdVU1T9gt6exuMi+exiNZ2htfYempgNBf78LS0sRsPehf1DTfoq2sxPH2tolnTEm4Jo51tLpX1XZG70Y6I54nNNyys9OzcjJTM5MdE4sKMksSwzOTyspTyxKLS3IyU9MMTAwNAMivaTcAoZRMPxAGQuEtmHCLs9kcFmVgQkAJ9URXc7wHxQBAAAAAgAAAEQAAAA8AgAAAAAAAAEAAAAAAAAAAAAAAA
+
+[CompareEditXXX]
+Call,CompareEdit
+
+[EncodedFile-InterfaceEncoded-AmperossQetto2Move0016016.bmp]
+lines=0
+0=eJxtk1lIVFEYxw16agEVzTRncRtt0cx0NCu0QlsgyyCih7Cgh6KFNgQzSsqnFohUEm3FlqmsVGxxxoxSyYkpTcctsiKXtCZ1mPXee878++5o4YMf/DjfnXN+//sdmLt2s3amj7e0RAzhO8kMH7XPv/KfPcF0NXd7RXRg3ufCoDMD+nkFQ8Z5BYOTDBmDCgYNgXlfCudsq4yZzg3I7ToSfMHmVJQBilLi6pT1X097IZdsroBc87GpblB+zwHVNUBJ50JLBAQUSVhQIkJB/X+KBYQWCd4s1XUgKL/3kOz6HTYpQ4scbq9fLsL/ooAV50ahueKE8oYI1TWBoLVcgLKMKJWf6T1XHILv8WaVothyMlwHqG+KmHVJxKHbFnjs49j5zAnf2xyqexLC74hewm6JdE6AmjLDH1BGseVU2E17VeRjIIBmPFhhASQnnneK0Fy2IYaIKHEi9C6DXxmDWscQeY+yKkREPpLfaa+JuO/Wh5C/9bEd4C7INWyxw/bbCmnUiuZeK9bpHDhfY0FkuQvKSo6ohxKiqoCIu+76qEp3XUQtkFDL0DYm2x4863bjdAdwthfY0QKsMYjgYNDTAQVlqJ9yLHwBaB66DdFPhbol9TRLDUPsS4bWMQ+sYw6kVjuwhmbaXzuOvTVWVJtpPkqpbx/DYp0b0a+AmGrBsKhWMMS+AWL1dDcipZGhctiDHSYRbRY3OSIhYdwlYaI4cppdCGsAFr8Q6uNeiU/iacalrxkSyI1ropxGCXEtDGs/cmxq50hrlvCkx+G9W/F3DzQNDLITpxerEhrFE0ntwLK3DInvGLTvGZI/0BytHInka0wce9tpDo+E0gEPwuncUkJ2ljeJuUlGzNcamS3pA8iVkEJO6ieOVR2EmXpaN3Zz7PviQbyJPMrXfgSSjcy+2mQPlv+DaR3CrrSvQGon0caxmry0Lo508tJ7KIf6BLqHvLeyC0j/RpiFnKnfQEa3sDujj1syR4CMn0AmsZ76DSMTvfe3X8C6Pv4n0yzsme4bzO6yB2f1s6NZ/VyX9YPVZU+yhcjqlx5kD9FetyNkqvMXP3mcf3ick3XMLUgtyi8uDkwtKck38s0vSzUwMDQDIr2k3AKGUTDMgRkLhFZixi4vra37hIEJABkJC8Gkai7oAQAAAAIAAAA3AAAAIgMAAAAAAAABAAAAAAAAAAAAAAA
+
