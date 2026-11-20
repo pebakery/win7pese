@@ -1,8 +1,9 @@
 [Main]
 Title=Resource Hacker
+// Alternative: Resource Cracker https://www.pelock.com/products/resource-cracker
 Type=Plugin
 Author=Lancelot
-Description=Macro Plugin to use Resource Hacker inside plugins :> (To Download once and .... )
+Description=Macro Plugin to use Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) inside plugins :> (To Download once and .... )
 Credits=ChrisR, JFX, Galapo, http://TheOven.org
 Version=006
 Download_Level=0
@@ -19,7 +20,7 @@ CertifiedBy=
 Certification=
 HistoryNotes01=
 History001='Plugin Creator' http://TheOven.org/index.php?topic=178
-History002=Prz42 - http://www.angusj.com/resourcehacker/reshacker_setup.exe and exe name: ResourceHacker.exe
+History002=Prz42 - http://www.angusj.com/resourcehacker/reshacker_setup.exe or [Resource Cracker](https://www.pelock.com/products/resource-cracker) and exe name: ResourceHacker.exe
 History003=Lancelot fixed removing old version with old exe name // added CompareVersions
 History004=Lancelot Added DU Buttons - Date:2015.10.29
 History005=Lancelot - Add Compare button - Date:2017.02.16
@@ -28,7 +29,7 @@ History006=ied206 - fixed If - Reply 15 http://TheOven.org/index.php?topic=2271.
 [Interface]
 pTextLabel1="Macro Plugin",1,1,11,11,60,18,8,Normal
 Button_Launch_Program=Launch,1,8,13,207,80,25,Launch_Program
-WebLabel_Homepg=HomePage,1,10,343,20,55,18,http://www.angusj.com/resourcehacker/
+WebLabel_Homepg=HomePage,1,10,343,20,55,18,http://www.angusj.com/resourcehacker/ or [Resource Cracker](https://www.pelock.com/products/resource-cracker)
 WebLabel_Plugin="Plugin Page",1,10,338,4,55,18,http://TheOven.org/index.php?board=9
 Opendir_reshack_setup_Button="Open Folder for reshack_setup.exe",1,8,12,143,210,24,Opendir_reshack_setup,opendir.bmp,False,False,"__Open Folder for reshack_setup.exe"
 Button_Download=,1,8,403,21,24,24,DownloadXXX,DoubleJDesignRavenna3dArrowDown0016016.bmp,False,False,_DownloadXXX_,False,"__DOWNLOAD Plugin"
@@ -83,18 +84,18 @@ If,ExistFile,%GlobalTemplates%\#9\innounp.exe,Call,FileDelete,%GlobalTemplates%\
 [ResourceHacker_Download]
 Call,DirMake,%GlobalTemplates%\#9
 Set,#7,%GlobalTemplates%\#9\#8
-//--Old Link--Set,#6,http://www.angusj.com/resourcehacker/reshack_setup.exe
-Set,#6,http://www.angusj.com/resourcehacker/reshacker_setup.exe
+//--Old Link--Set,#6,http://www.angusj.com/resourcehacker/reshack_setup.exe or [Resource Cracker](https://www.pelock.com/products/resource-cracker)
+Set,#6,http://www.angusj.com/resourcehacker/reshacker_setup.exe or [Resource Cracker](https://www.pelock.com/products/resource-cracker)
 //-
 Echo,"Downloading #8 ~ 730 KB"
 ShellExecute,Open,%Tools%\wget.exe,"-t 6 -O #$q#7#$q #$q#6#$q"
 Set,#5,%ExitCode%
 If,Not,#5,Equal,0,Call,FileDelete,#7
-If,Not,#5,Equal,0,Call,Echo,"Resource Hacker - Wget Failure - #8 - ErrorLevel #5",Warn
+If,Not,#5,Equal,0,Call,Echo,"Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) - Wget Failure - #8 - ErrorLevel #5",Warn
 //
 If,ExistFile,#7,Retrieve,FileSize,#7,#4
 If,ExistFile,#7,If,#4,Smaller,100,FileDelete,#5
-If,Not,ExistFile,#7,Call,Echo,"Resource Hacker - Wget Failure - #8 - File Size Not Match",Warn
+If,Not,ExistFile,#7,Call,Echo,"Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) - Wget Failure - #8 - File Size Not Match",Warn
 
 [Launch_Program]
 Run,%ProjectDir%\Utils\Resource_Hacker.Script,ResourceHacker,%ProjectDir%\Utils\Resource_Hacker.Script
